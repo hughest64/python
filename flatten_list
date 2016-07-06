@@ -5,9 +5,8 @@ def flatten(aList):
     if aList == []:
         return newList
     else:
-        if aList[0] == list:
-            newList = newList.pop(aList[0])
+        if type(aList[0]) == list:
+            newList = flatten(aList[0])
         else:
             newList = [aList[0]]
-        print newList # testing output
         return newList + flatten(aList[1:])
