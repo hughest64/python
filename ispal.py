@@ -11,10 +11,10 @@ def isPalindrome(aString):
        
        
 def isPalindrome(aString):
-    '''
-    converts and string to just lower case letters.
-    '''
     def makeLower(aString):
+        '''
+        converts and string to just lower case letters.
+        '''
         aString = aString.lower()
         ans =''
         alpha = 'abcdefghijklmnopqrstuvwxyz'
