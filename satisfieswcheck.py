@@ -1,4 +1,4 @@
-#failing
+
 
 def checkExpect(func, ans):
     '''
@@ -25,14 +25,11 @@ def satisfiesF(L):
     mutate L to contain only values of s that are already in L
     do this by making f(s) return True
     '''
+    def satisfiesF(L):  
     L2 = list(L)
-    for s in L:
+    for s in L=2:
         if f(s) == False:
-            L2.remove(s)
-            #print L
-            
-    L = list(L2)
-    print L
+            L.remove(s)
     return len(L)
     
 #satisfiesF(['a', 'b', 'a']) #single test
