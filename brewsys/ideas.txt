@@ -1,0 +1,76 @@
+mash system:
+
+1. when file is loaded:
+ - time is set for the first step time
+ - hit start button to fire the burners and start heating
+ - send an alert when strike temp is reached and shut off burner
+2. after mash in:
+ - hit start to start timer and initialize temp control cycle
+ - ability to pause and abort automatic control
+3: when step is done:
+ - start reset timer to next step time
+ - fire burners and heat to next step temp
+4: when next step temp is reached:
+ - start timer automatically
+ - reenter temp control cycle
+5: repeat 3 and 4 as necessary through mash out
+6: when done:
+ - shut everything down
+#########################################################
+
+1. app opens to basic timer function, "00:00" with
+   start and reset buttons = DONE
+
+2. Timer -> Set to set timer. - DONE
+
+3. File -> "Load" or "Open" to select file from a specific
+   directory which contains only beer.xml files - DONE
+
+4. When a file is selected a list of mash steps populates on
+   the left and boil additions on the right
+
+5. Timer menu (buttons?) with options to run the mash or boil cycle.
+
+#####################################################################
+
+
+import lines
+- time, wx, os, modules
+- timer class module
+- other separate modules
+
+global variables
+- system parameters (window size, timer delay, window titles, etc)
+- globally available objects (timers, xml file, etc)
+
+class - top level called at program start
+- may have some class bindings for file selection etc
+- otherwise contains only an InitUI method to set up the window.
+
+class - sub class for boil functions?
+- inherits from  World and adds timer methods
+
+class - subclass for mash functions
+- inherits from World -or- Boil class
+- overrides methods for timers
+
+class - new window for setting the timer
+- inherits from wx.Frame used to set the timer manually
+
+class - new window for selecting a file
+- inherits from wx.Frame used to load a .XML file for parsing
+
+initialize the app
+- create an wx app and run the World class through MainLoop() method
+
+
+
+
+
+
+
+
+
+
+
+end of files
