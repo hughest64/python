@@ -1,0 +1,49 @@
+﻿Recipe: Oktoberfest! 16	TYPE: All Grain
+Style: Oktoberfest/Märzen
+---RECIPE SPECIFICATIONS-----------------------------------------------
+SRM: 8.1 SRM		SRM RANGE: 7.0-14.0 SRM
+IBU: 26.2 IBUs Tinseth	IBU RANGE: 20.0-28.0 IBUs
+OG: 1.050 SG		OG RANGE: 1.050-1.057 SG
+FG: 1.018 SG		FG RANGE: 1.012-1.016 SG
+BU:GU: 0.519		Calories: 165.2 kcal/12oz	Est ABV: 4.3 %		
+EE%: 80.00 %	Batch: 11.00 gal      Boil: 13.46 gal	BT: 90 Mins
+
+---WATER CHEMISTRY ADDITIONS----------------
+
+
+Total Grain Weight: 19 lbs	Total Hops: 2.00 oz oz.
+---MASH/STEEP PROCESS------MASH PH:5.40 ------
+>>>>>>>>>>-ADD WATER CHEMICALS BEFORE GRAINS!!<<<<<<<
+Amt                   Name                                     Type          #        %/IBU         
+10 lbs                Pilsner (2 Row) Bohemian FM (1.9 SRM)    Grain         1        52.6 %        
+6 lbs                 Munich Malt 20 EBC (9.0 SRM)             Grain         2        31.6 %        
+2 lbs                 Vienna Malt (3.5 SRM)                    Grain         3        10.5 %        
+1 lbs                 Medium Crystal  (55.0 SRM)               Grain         4        5.3 %         
+
+
+Name              Description                             Step Temperat Step Time     
+Protein Rest      Add 38.00 qt of water at 131.8 F        125.0 F       20 min        
+Saccharification  Heat to 145.0 F over 2 min              145.0 F       30 min        
+Saccharification  Decoct 10.18 qt of mash and boil it     160.0 F       30 min        
+Mash Out          Heat to 170.0 F over 10 min             170.0 F       10 min        
+
+---SPARGE PROCESS---
+>>>>>>>>>>-RECYCLE FIRST RUNNINGS & VERIFY GRAIN/MLT TEMPS: 72.0 F/72.0 F
+>>>>>>>>>>-ADD BOIL CHEMICALS BEFORE FWH
+Fly sparge with 6.62 gal water at 168.0 F
+
+---BOIL PROCESS-----------------------------
+Est Pre_Boil Gravity: 1.043 SG	Est OG: 1.050 SG
+Amt                   Name                                     Type          #        %/IBU         
+1.00 oz               Hallertau Magnum [13.00 %] - Boil 60.0 m Hop           5        22.8 IBUs     
+0.50 oz               Hallertauer [4.80 %] - Boil 20.0 min     Hop           6        2.5 IBUs      
+0.50 oz               Hallertauer [4.80 %] - Boil 5.0 min      Hop           7        0.8 IBUs      
+
+
+---FERM PROCESS-----------------------------
+Primary Start: 06 Aug 2016 - 14.00 Days at 52.0 F
+Secondary Start: 20 Aug 2016 - 10.00 Days at 65.0 F
+Style Carb Range: 2.50-2.80 Vols
+Bottling Date: 20 Aug 2016 with 2.5 Volumes CO2: 
+---NOTES------------------------------------
+
