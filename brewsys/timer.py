@@ -7,21 +7,21 @@ TODO:
 
 class Timer(object):
     """ a collection of timer controls for a brewing system."""
-    def __init__(self):
+    def __init__(self, mn=0, sec=0):
         # defualt values #
         # minutes - (int), second(int)
-        self.mn = 0
-        self.sec = 0
+        self.mn = mn
+        self.sec = sec
         # timer reset values - minutes (int), second(int)
-        self.resetMn = 0
-        self.resetSec = 0
+        self.resetMn = mn
+        self.resetSec = sec
         # False if the timer is not running
         self.status = False
         # Is the current self.mn in a dict of hops?
         self.addition = False
-
         # add comment !!!
         self.brewtype = ''
+        self.mashsteps = []
 
     def Set(self, mn, sec):
         """ Setting the timer. """
@@ -40,8 +40,22 @@ class Timer(object):
 
         else:
             self.sec -= 1
-        # can be used to set a timer delay
-        #time.sleep(1)
+
+    def Start(self):
+        """ A flag for starting the timer. """
+        self.status = True
+
+    def Stop(self):
+        """ A flag for stopping the timer. """
+        self.status = False
+
+    def Reset(self):
+        """ Resets the timer to previous self.Set value. """
+        # stop the timer first
+        if self.status:
+            self.status = False
+        # reset mn/sec values
+        self.Set(self.resetMn, self.resetSec)
 
     def GetDisplay(self):
         """
@@ -63,28 +77,12 @@ class Timer(object):
         timerVals = {'mn':self.mn, 'sec':self.sec, 'display':disp}
         return timerVals
 
-    def Start(self):
-        """ A flag for starting the timer. """
-        self.status = True
-
-    def Stop(self):
-        """ A flag for stopping the timer. """
-        self.status = False
-
     def GetStatus(self):
         """ Returns the current run status of the timer. """
         return self.status
 
-    def Reset(self):
-        """ Resets the timer to previous self.Set value. """
-        # stop the timer first
-        if self.status:
-            self.status = False
-        # reset mn/sec values
-        self.Set(self.resetMn, self.resetSec)
-
 ###################################################################
-    ### THIS MUST BE IN THE PARENT FILE WITH A BEER XML ARG ###
+
     def GetXML(self, t):
         """
         Accesses the the desired hop and boil elements
@@ -94,27 +92,43 @@ class Timer(object):
         """
         # if we have a beer.xml file with wich to work
         try:
-            # get the root of the xml tree
-            self.root = t.getroot()
+            # get the recipe element of the xml tree
+            self.recipe = t.getroot()[0]
             # the hops element
-            self.hops = self.root[0][9]
-            # the boil eleemnt
-            self.boil = self.root[0][7].text
+            self.hops = self.recipe[9]
+            # the boil element
+            self.boil = self.recipe[7].text
             # the brew type all grain or extract
-            self.brewtype = self.root[0][2].text
-        # if we don't have a beer.xml file return empty values
+            self.brewtype = self.recipe[2].text
+            # the mash steps
+            mash = self.recipe.find('MASH')
+            steps = mash.find('MASH_STEPS')
+            self.mashsteps = []
+            for step in steps.findall('MASH_STEP'):
+
+                name = step.find('NAME').text
+                time = int(float(step.find('STEP_TIME').text))
+
+                tempsplit = step.find('DISPLAY_STEP_TEMP').text.split()
+                temp = (int(float(tempsplit[0])))
+
+                elements = (name, time, temp)
+                self.mashsteps.append(elements)
+
+        # otherwise return empty values
         except:
             self.hops = []
             self.boil = 0
             self.brewtype = ''
-
-    def GetBoilTime(self):
-       """ Returns the length of the boil as tuple of int, int. """
-       boil = (int(float(self.boil)), 0)
-       return boil
+            self.mashsteps = []
 
     def GetBrewType(self):
-       return self.brewtype
+        return self.brewtype
+
+    def GetBoilTime(self):
+        """ Returns the boil time as tuple of (int mn int sec) """
+        boil = (int(float(self.boil)), 0)
+        return boil
 
     def GetHops(self):
         """
@@ -162,10 +176,8 @@ class Timer(object):
 
         return self.addition
 
-######################################################################
-
-    def GetMashXML(self):
-        pass
+    def GetMashSteps(self):
+        return self.mashsteps
 
 
 
@@ -198,7 +210,7 @@ if __name__ == '__main__':
     timer = Timer()
     timer.Set(60, 0)
     tree = ET.parse('C:/Users/Todd/Desktop/brewsys/bsmith/Oktober-16.xml')
-    timer.GetXML(tree)
+    '''timer.GetXML(tree)
     vals = timer.GetDisplay()
     #print timer.GetHops()
     print timer.GetBoilTime()
@@ -208,6 +220,8 @@ if __name__ == '__main__':
             print vals['display']
             print timer.GetAddition()
         timer.Run()
-        vals = timer.GetDisplay()
+        vals = timer.GetDisplay()'''
+
+    print timer.GetMashXML()
 
 ### End of File ###
