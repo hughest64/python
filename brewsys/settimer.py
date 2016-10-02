@@ -1,19 +1,18 @@
 import wx
-import os
-import time
-import xml.etree.ElementTree as ET
+
+"""
+TODO:
+- create a panel and add widgets to sizers
+"""
 
 class SetTimer(wx.Frame):
     """
     Window for setting the timer manually accesed via
     Timer -> Set
     """
-    def __init__(self, *args, **kwargs):
-        super(SetTimer, self).__init__(*args, **kwargs)
 
-        self.InitUI()
-
-    def InitUI(self):
+    def __init__(self, parent):
+        wx.Frame.__init__(self, parent,  size=(250, 250))
 
         #buttons
         svbtn = wx.Button(self, label='Save', pos=(20, 120))
@@ -36,7 +35,6 @@ class SetTimer(wx.Frame):
         clbtn.Bind(wx.EVT_BUTTON, self.OnCancel)
         self.Bind(wx.EVT_CLOSE, self.OnCancel)
 
-        self.SetSize((250, 250))
         self.SetTitle("Set Timer")
 
     def OnShow(self, e):
@@ -67,3 +65,10 @@ class SetTimer(wx.Frame):
     def OnCancel(self, e):
         """ Close the window without making changes """
         self.Hide()
+
+
+if __name__ == '__main__':
+    app = wx.App()
+    S = SetTimer(None)
+    S.Show()
+    app.MainLoop()
