@@ -64,6 +64,17 @@ initialize the app
 - create an wx app and run the World class through MainLoop() method
 
 
+- for close method confirmation dlg -
+
+def OnClose(self, event):
+    dlg = wx.MessageDialog(self, 
+        "Do you really want to close this application?",
+        "Confirm Exit", wx.OK|wx.CANCEL|wx.ICON_QUESTION)
+    result = dlg.ShowModal()
+    dlg.Destroy()
+    if result == wx.ID_OK:
+        self.Destroy()
+
 
 
 
