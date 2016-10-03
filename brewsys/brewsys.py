@@ -64,12 +64,12 @@ class World(wx.Frame):
 
         # close the app
         # add close event binding for confirmation dialog !!!
-        self.Bind(wx.EVT_MENU, self.OnClose, fitem2)
-        self.cbtn.Bind(wx.EVT_BUTTON, self.OnClose)
+        self.Bind(wx.EVT_MENU, self.CloseDlg, fitem2)
+        self.cbtn.Bind(wx.EVT_BUTTON, self.CloseDlg)
+        self.Bind(wx.EVT_BUTTON, self.OnClose)
 
         # timer bindings
         self.Bind(wx.EVT_TIMER, self.OnTimer, self.wxtimer)
-        self.Bind(wx.EVT_TIMER, self.OnMashTimer, self.mashTimer)
 
         self.stbtn.Bind(wx.EVT_BUTTON, self.OnRunning)
         self.rbtn.Bind(wx.EVT_BUTTON, self.OnReset)
@@ -95,21 +95,26 @@ class World(wx.Frame):
             self.brewType = self.TIMER.GetBrewType()
             self.mashSteps = self.TIMER.GetMashSteps()[:]
             if self.Mashable:
-               self.CallMash(e)
+               self.CallMash(None)
+            else:
+               self.CallBoil(None)
 
         except:
-           self.CallBoil(e)
+            # may need to raise parse error dialog if fpath is bad!!!
+            self.RecipeErrDlg()
 
     def CallMash(self, e):
-
-        if self.mashSteps != []:
-            self.mashFlag = True
-            step = self.mashSteps.pop(0)
-            self.TIMER.Set(step[1], 0)
-            self.OnRefresh(None)
-        else:
-            self.CallBoil(None)
-            self.mashFlag = False
+        try:
+            if self.mashSteps != []:
+                self.mashFlag = True
+                step = self.mashSteps.pop(0)
+                self.TIMER.Set(step[1], 0)
+                self.OnRefresh(None)
+            else:
+                self.CallBoil(None)
+                self.mashFlag = False
+        except:
+            self.RecipeErrDlg()
 
     def CallBoil(self, e):
         self.mashFlag = False
@@ -121,12 +126,16 @@ class World(wx.Frame):
 
         except:
             # a messag dialong would nice here !!!
-            # message could be: "Please select a recipe first!"
-            pass
+            self.RecipeErrDlg()
 
     def Mashable(self):
+        # should patial mash and biab be included? !!!
         """ Returns True if the brew type is All Grain. """
         return self.brewType == 'All Grain'
+
+    def OnParseErr(self):
+        """ This will need a pop up dialog!!! """
+        return "The file path is incorrect"
 
 ################################################################
 
@@ -151,6 +160,15 @@ class World(wx.Frame):
         self.setTimer.Destroy()
         self.Destroy()
 
+    def CloseDlg(self, e):
+        msg = "Are you sure you want to quit?"
+        dlg = wx.MessageDialog(self, msg, "Are you sure?",
+                               wx.YES_NO | wx.YES_DEFAULT | wx.ICON_QUESTION)
+
+        dlg.ShowModal()
+
+        dlg.Destroy()
+
     def OnTimer(self, e):
         # rename RunTimer? !!!
         """ Decrement and redraw the timer """
@@ -159,6 +177,7 @@ class World(wx.Frame):
             self.TIMER.Stop()
             self.wxtimer.Stop()
             self.stbtn.SetLabel('Start')
+            self.CallMash
 
         if self.vals['mn'] >= 0 and self.TIMER.GetStatus():
             # decrement the timer
@@ -168,52 +187,21 @@ class World(wx.Frame):
             # show a hop dialog if necessary
             self.ShowHopDlg()
 
-    def OnMashTimer(self, e):
-        """ doc string """
-        # rename RunMashTimer? !!!
-        # stop once we are at '00:00'
-        if self.vals['display'] == '00:00':
-            self.TIMER.Stop()
-            self.mashTimer.Stop()
-            self.stbtn.SetLabel('Start')
-            self.CallMash(None)
-
-        if self.vals['mn'] >= 0 and self.TIMER.GetStatus():
-            # decrement the timer
-            self.TIMER.Run()
-            # redraw the display
-            self.OnRefresh(e)
-
-
     def OnRunning(self, e):
         """ Start and stop the timer. """
-        # rename OnTimerSta#t?
-        # split this into two methods? !!!
-        # - add OnMashTimerStart? !!!
-        # upon wether or not the brew type is All Grain !!!
-        if self.Mashable and self.mashFlag:
+        # rename OnTimerStart? !!!
         # start the timer unless we are a '00:00'
-            if not self.TIMER.GetStatus() and self.vals['display'] != '00:00':
-                self.stbtn.SetLabel('Pause')
-                self.mashTimer.Start(DELAY)
-                self.TIMER.Start()
+        if not self.TIMER.GetStatus() and self.vals['display'] != '00:00':
+            self.stbtn.SetLabel('Pause')
+            self.wxtimer.Start(DELAY)
+            self.TIMER.Start()
+            self.ShowHopDlg()
 
-            # stop the timer
-            else:
-                self.TIMER.Stop()
-                self.mashTimer.Stop()
-                self.stbtn.SetLabel('Start')
-
+        # stop the timer
         else:
-            if not self.TIMER.GetStatus() and self.vals['display'] != '00:00':
-                self.stbtn.SetLabel('Pause')
-                self.wxtimer.Start(DELAY)
-                self.TIMER.Start()
-                self.ShowHopDlg()
-            else:
-                self.TIMER.Stop()
-                self.wxtimer.Stop()
-                self.stbtn.SetLabel('Start')
+            self.TIMER.Stop()
+            self.wxtimer.Stop()
+            self.stbtn.SetLabel('Start')
 
 ############################################################################
 
@@ -247,9 +235,17 @@ class World(wx.Frame):
 
     def ShowHopDlg(self):
         # show the hop dialog when it's time to add hops
-        if self.TIMER.AddHop() and self.TIMER.GetHops() != {}:
+        if self.TIMER.AddHop() and self.TIMER.GetHops() != {} \
+        and self.mashFlag == False:
             self.HopDlg()
 
+    def RecipeErrDlg(self):
+        msg = "Please select a recipe first!"
+        dlg = wx.MessageDialog(self, msg, "No Recipe Selected",
+                               wx.OK|wx.ICON_EXCLAMATION)
+
+        dlg.ShowModal()
+        dlg.Destroy()
 
 
 
