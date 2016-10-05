@@ -66,7 +66,7 @@ class World(wx.Frame):
         # add close event binding for confirmation dialog !!!
         self.Bind(wx.EVT_MENU, self.CloseDlg, fitem2)
         self.cbtn.Bind(wx.EVT_BUTTON, self.CloseDlg)
-        self.Bind(wx.EVT_BUTTON, self.OnClose)
+        self.Bind(wx.EVT_CLOSE, self.CloseDlg) #!!!
 
         # timer bindings
         self.Bind(wx.EVT_TIMER, self.OnTimer, self.wxtimer)
@@ -163,11 +163,12 @@ class World(wx.Frame):
     def CloseDlg(self, e):
         msg = "Are you sure you want to quit?"
         dlg = wx.MessageDialog(self, msg, "Are you sure?",
-                               wx.YES_NO | wx.YES_DEFAULT | wx.ICON_QUESTION)
+                               wx.OK | wx.CANCEL| wx.ICON_QUESTION)
 
-        dlg.ShowModal()
-
-        dlg.Destroy()
+        result = dlg.ShowModal()
+        if result == wx.ID_OK:
+            self.OnClose(None)
+            dlg.Destroy()
 
     def OnTimer(self, e):
         # rename RunTimer? !!!
