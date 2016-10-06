@@ -76,22 +76,22 @@ def OnClose(self, event):
         self.Destroy()
         
 class Test(wx.Frame):
-	def __init__(self, *args, **kwargs)
-		super(Test, self).__init__(*args, **kwargs)
-		
-		panel = wx.Panel(self)
-		
-		vbox = wx.BoxSizer(wx.VERTICAL)
-		
-		steptext = wx.StaticText(panel, label="step text")
-		vbox.Add(steptext, flag=wx.ALIGN_CENTER|wx.TOP, border=20)
-		
-		self.dc = wx.ClientDC(panel)
+    def __init__(self, *args, **kwargs)
+        super(Test, self).__init__(*args, **kwargs)
+
+        panel = wx.Panel(self)
+
+        vbox = wx.BoxSizer(wx.VERTICAL)
+
+        steptext = wx.StaticText(panel, label="step text")
+        vbox.Add(steptext, flag=wx.ALIGN_CENTER|wx.TOP, border=20)
+
+        self.dc = wx.ClientDC(panel)
         font = wx.Font(30, wx.ROMAN, wx.NORMAL, wx.BOLD)
         self.dc.SetFont(font)
         self.dc.DrawText('00:00')
         vbox.Add(self.dc, flag=WX.ALIGN_CENTER|wx.TOP, border=20)
-        
+
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
         self.stbtn = wx.Button(panel, label='start')
         self.rbtn = wx.Button(panel, label='reset')
@@ -100,16 +100,7 @@ class Test(wx.Frame):
         hbox1.Add(self.rbtn, flag=wx.RIGHT, border=5)
         hbox1.Add(clbtn)
         vbox.Add(hbox1, flag=wx.ALIGN_CENTER|wx.TOP border=20)
-        
+
         panel.SetSizer(vbox)
 
 
-
-
-
-
-
-
-
-
-end of files
