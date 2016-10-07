@@ -127,7 +127,7 @@ class Test(wx.Frame):
         vbox5.Add(addstext, flag=wx.ALIGN_CENTER)
         
         hbox3.Add(vbox2)
-        hbox3.Add(vobx3)
+        hbox3.Add(vbox3)
         
         vbox.Add(hbox2, flag=wx.TOP, border = 20)
 
