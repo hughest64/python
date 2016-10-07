@@ -95,7 +95,7 @@ class Test(wx.Frame):
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
         self.stbtn = wx.Button(panel, label='start')
         self.rbtn = wx.Button(panel, label='reset')
-        clebtn = wx.Button(panel, label='close')
+        clbtn = wx.Button(panel, label='close')
         hbox1.Add(self.stbtn, flag=wx.RIGHT, border=5)
         hbox1.Add(self.rbtn, flag=wx.RIGHT, border=5)
         hbox1.Add(clbtn)
