@@ -100,6 +100,36 @@ class Test(wx.Frame):
         hbox1.Add(self.rbtn, flag=wx.RIGHT, border=5)
         hbox1.Add(clbtn)
         vbox.Add(hbox1, flag=wx.ALIGN_CENTER|wx.TOP border=20)
+        
+        hbox2 = wx.BoxSizer(wx.HORIZONTAL)
+        
+        vbox2 = wx.BoxSizer(wx.VERTICAL)
+        mashtext = wx.StaticText(panel, label="Mash Steps")
+        vbox2.Add(mashtext, flag=wx.ALIGN_CENTER)
+        
+        vbox3 = wx.BoxSizer(wx.VERTICAL)
+        boiltext = wx.StaticText(panel, label="Boil Additions")
+        vbox3.Add(boiltext, flag=wx.ALIGN_CENTER)
+        
+        hbox2.Add(vbox2)
+        hbox2.Add(vobx3)
+        
+        vbox.Add(hbox2, flag=wx.TOP, border = 20)
+        
+        hbox3 = wx.BoxSizer(wx.HORIZONTAL)
+        
+        vbox4 = wx.BoxSizer(wx.VERTICAL)
+        stepstext = wx.StaticText(panel, label="Mash Steps")
+        vbox4.Add(stepstext, flag=wx.ALIGN_CENTER)
+        
+        vbox5 = wx.BoxSizer(wx.VERTICAL)
+        addstext = wx.StaticText(panel, label="Boil Additions")
+        vbox5.Add(addstext, flag=wx.ALIGN_CENTER)
+        
+        hbox3.Add(vbox2)
+        hbox3.Add(vobx3)
+        
+        vbox.Add(hbox2, flag=wx.TOP, border = 20)
 
         panel.SetSizer(vbox)
 
