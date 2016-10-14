@@ -77,9 +77,9 @@ class Test(wx.Frame):
         vbox = wx.BoxSizer(wx.VERTICAL)
         midgrid = wx.GridBagSizer(20, 20)
 
-        mashlist = wx.ListBox(panel, choices=[TESTLIST], name='Mash Steps')
+        mashlist = wx.ListBox(panel, choices=TESTLIST, name='Mash Steps')
         grid.Add(mashlist, pos=(0, 0), flag=wx.EXPAND|wx.ALL, border=10)
-        boillist = wx.ListBox(panel, choices=[TESTLIST], name='Boil Steps')
+        boillist = wx.ListBox(panel, choices=TESTLIST, name='Boil Steps')
         grid.Add(boillist, pos=(0, 1), flag=wx.EXPAND|wx.ALL, border=10)
         grid.AddGrowableCol(0)
         grid.AddGrowableCol(1)
