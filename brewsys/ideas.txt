@@ -83,7 +83,7 @@ class Test(wx.Frame):
         grid.Add(boillist, pos=(0, 1), flag=wx.EXPAND|wx.ALL, border=10)
         grid.AddGrowableCol(0)
         grid.AddGrowableCol(1)
-        grid.AddGrowableCol(0)
+        grid.AddGrowableRow(0)
         
         vbox.Add(grid, flag=wx.ALL, border=10)
         
