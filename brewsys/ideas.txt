@@ -93,7 +93,7 @@ def BrewType(self, e):
                 self.mashFlag = True                   # deprecate
                 step = self.mashSteps.pop(0)           # instead of this use:
                 
-                step = self.mashSteps[self.step_count] # this instead
+                step = self.mashSteps[self.step_count-1] # this instead
                 self.TIMER.Set(step[1], 0)             # with the new timer set method you should be able to set with (step[1])
                 self.step_count += 1                   # move to the next step in the list
                 self.OnRefresh(None)
