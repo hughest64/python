@@ -75,6 +75,7 @@ def BrewType(self, e):
             self.TIMER.GetXML(self.TREE)
             self.brewType = self.TIMER.GetBrewType()
             self.mashSteps = self.TIMER.GetMashSteps()[:]
+            self.steps = len(self.mashsteps)               # the total number of mash steps
             if self.Mashable:
                self.CallMash(None)
             else:
@@ -86,23 +87,25 @@ def BrewType(self, e):
 
     def CallMash(self, e):
         self.step_count = 0                            # this needs to be in the init
-        
+                        
         try:
-            if self.mashSteps != []:
-                self.mashFlag = True
+            if self.steps > 0 and self.step_count <= self.steps:
+                self.mashFlag = True                   # deprecate
                 step = self.mashSteps.pop(0)           # instead of this use:
+                
                 step = self.mashSteps[self.step_count] # this instead
                 self.TIMER.Set(step[1], 0)             # with the new timer set method you should be able to set with (step[1])
+                self.step_count += 1                   # move to the next step in the list
                 self.OnRefresh(None)
             else:
                 self.CallBoil(None)
-                self.mashFlag = False
+                self.mashFlag = False                  # deprecate
         except:
             # use ParseErrDlg(self) instead of:
             self.RecipeErrDlg()
 
     def CallBoil(self, e):
-        self.mashFlag = False
+        self.mashFlag = False                          # deprecate
         try:
             boil = self.TIMER.GetBoilTime()
             self.TIMER.Set(boil[0], boil[1])           # with the new timer set method you should be able to set with (boil[0])
@@ -114,7 +117,7 @@ def BrewType(self, e):
             self.RecipeErrDlg()
 
     def Mashable(self):
-        # should patial mash and biab be included? !!!
+        # should partial mash and biab be included? !!!
         """ Returns True if the brew type is All Grain. """
         return self.brewType == 'All Grain'
         
