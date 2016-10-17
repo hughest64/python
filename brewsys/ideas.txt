@@ -67,26 +67,58 @@ def OnClose(self, event):
     if result == wx.ID_OK:
         self.Destroy()
         
-TESTLIST = ['step 1', 'step 2', 'step 3', 'Remove this param in the actual implementation']
+def BrewType(self, e):
+        """ load a timer based upon the brewing style """
+        try:
+            self.XML = self.recipe.GetRecipe()
+            self.TREE = ET.parse(self.XML)
+            self.TIMER.GetXML(self.TREE)
+            self.brewType = self.TIMER.GetBrewType()
+            self.mashSteps = self.TIMER.GetMashSteps()[:]
+            if self.Mashable:
+               self.CallMash(None)
+            else:
+               self.CallBoil(None)
+
+        except:
+            # may need to raise parse error dialog if fpath is bad!!!
+            self.RecipeErrDlg()
+
+    def CallMash(self, e):
+        self.step_count = 0                            # this needs to be in the init
         
-class Test(wx.Frame):
-    def __init__(self, *args, **kwargs)
-        super(Test, self).__init__(*args, **kwargs)
+        try:
+            if self.mashSteps != []:
+                self.mashFlag = True
+                step = self.mashSteps.pop(0)           # instead of this use:
+                step = self.mashSteps[self.step_count] # this instead
+                self.TIMER.Set(step[1], 0)             # with the new timer set method you should be able to set with (step[1])
+                self.OnRefresh(None)
+            else:
+                self.CallBoil(None)
+                self.mashFlag = False
+        except:
+            # use ParseErrDlg(self) instead of:
+            self.RecipeErrDlg()
 
-        panel = wx.Panel(self)
-        vbox = wx.BoxSizer(wx.VERTICAL)
-        midgrid = wx.GridBagSizer(20, 20)
+    def CallBoil(self, e):
+        self.mashFlag = False
+        try:
+            boil = self.TIMER.GetBoilTime()
+            self.TIMER.Set(boil[0], boil[1])           # with the new timer set method you should be able to set with (boil[0])
+            # refresh the display
+            self.OnRefresh(None)
 
-        mashlist = wx.ListBox(panel, choices=TESTLIST, name='Mash Steps')
-        grid.Add(mashlist, pos=(0, 0), flag=wx.EXPAND|wx.ALL, border=10)
-        boillist = wx.ListBox(panel, choices=TESTLIST, name='Boil Steps')
-        grid.Add(boillist, pos=(0, 1), flag=wx.EXPAND|wx.ALL, border=10)
-        grid.AddGrowableCol(0)
-        grid.AddGrowableCol(1)
-        grid.AddGrowableRow(0)
+        except:
+            # a messag dialong would nice here !!!
+            self.RecipeErrDlg()
+
+    def Mashable(self):
+        # should patial mash and biab be included? !!!
+        """ Returns True if the brew type is All Grain. """
+        return self.brewType == 'All Grain'
         
-        vbox.Add(grid, flag=wx.ALL, border=10)
-        
-        panel.SetSizer(vbox)
-
-
+    # change to ParseErrDlg(self) and use in except for BrewType() method 
+    def OnParseErr(self):                          
+        """ This will need a pop up dialog!!! """
+        return "The file path is incorrect"
