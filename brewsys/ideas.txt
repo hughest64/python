@@ -131,7 +131,7 @@ def BrewType(self, e):
    
    def OnMashListDC(self, e):
        # set self.step_count to the appropriate index from choices list
-       sel = <mash list box>.GetSelection() # I think this is a string, not the index!!!
+       sel = <mash list box>.GetSelection() # this should be int index
        self.step_count = sel
        # call callMash() method
        self.CallMash(None)
