@@ -125,3 +125,18 @@ def BrewType(self, e):
     def OnParseErr(self):                          
         """ This will need a pop up dialog!!! """
         return "The file path is incorrect"
+        
+   ################################################################
+   # when double clicking a step in mash_list:
+   
+   def OnMashListDC(self, e):
+       # set self.step_count to the appropriate index from choices list
+       sel = <mash list box>.GetSelection() # I think this is a string, not the index!!!
+       self.step_count = sel
+       # call callMash() method
+       self.CallMash(None)
+   
+   # add event binding for double click event and this method
+   
+   # next method to to bind to a "Next" button to skip to the next step
+   # same for previous?
