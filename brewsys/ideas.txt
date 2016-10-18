@@ -89,7 +89,7 @@ def BrewType(self, e):
         self.step_count = 0                            # this needs to be in the init
                         
         try:
-            if self.steps > 0 and self.step_count <= self.steps:
+            if self.steps > 0 and self.step_count < self.steps:
                 self.mashFlag = True                   # deprecate
                 step = self.mashSteps.pop(0)           # instead of this use:
                 
