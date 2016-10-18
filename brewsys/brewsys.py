@@ -5,34 +5,59 @@ from timer import *
 from brewlist import *
 from settimer import *
 
+app = wx.App()
+
 ### CONSTANTS ###
-SIZE = ((640, 480))
+SIZE = (640, 480)
 TITLE = 'Brewsys'
 DELAY = 1000
+# depricate once list population is complete!!!
+TESTLIST = ['step 1', 'step 2', 'step 3',
+            'Remove this param']
+
+TMR_PT_SIZE = 40
+LBL_PT_SIZE = 12
+LST_PT_SIZE = 10
+TIMER_FONT = wx.Font(TMR_PT_SIZE, wx.ROMAN, wx.NORMAL, wx.BOLD)
+LABEL_FONT = wx.Font(LBL_PT_SIZE, wx.SWISS, wx.NORMAL, wx.NORMAL)
+LIST_FONT = wx.Font(LST_PT_SIZE, wx.SWISS, wx.NORMAL, wx.NORMAL)
+VGAP = 10
+HGAP = 10
+BORDER = 20
+BTN_SIZE = (90, 30)
 
 class World(wx.Frame):
     def __init__(self, *args, **kwargs):
         super(World, self).__init__(*args, **kwargs)
 
-        self.TIMER = Timer()
         self.setTimer = SetTimer(self)
         self.recipe = Recipe(self)
-        self.mashSteps = []
-        self.mashFlag = False
+
+        self.wx_timer = wx.Timer(self)
+        self.TIMER = Timer()
+        self.vals = self.TIMER.GetDisplay()
+
+        self.mash_steps = []
+        self.mash_flag = False
 
         self.InitUI()
 
+        self.SetSize(SIZE)
+        self.SetTitle(TITLE)
+        self.Centre()
+        self.Show()
+
     def InitUI(self):
 
-        self.wxtimer = wx.Timer(self)
-        self.mashTimer = wx.Timer(self)
-
+        panel = wx.Panel(self)
+        grid = wx.GridBagSizer(VGAP, HGAP)
+        vbox = wx.BoxSizer(wx.VERTICAL)
         # menu bar and menu items
         menubar = wx.MenuBar()
         # file menu
         fileMenu = wx.Menu()
         fitem1 = fileMenu.Append(wx.ID_ANY, '&Open', 'Select a File')
-        fitem2 = fileMenu.Append(wx.ID_EXIT, '&Exit', 'Exit application')
+        fitem2 = fileMenu.Append(wx.ID_EXIT, '&Exit', 'Quit Brewing')
         # run menu
         runMenu = wx.Menu()
         runitem1 = runMenu.Append(wx.ID_ANY, '&Set', 'Set the timer')
@@ -44,20 +69,53 @@ class World(wx.Frame):
 
         self.SetMenuBar(menubar)
 
-        # buttons
-        self.stbtn = wx.Button(self, label='Start', pos=(200,125))
-        self.rbtn = wx.Button(self, label='Reset', pos=(275,125))
-        # depricate? !!!
-        self.cbtn = wx.Button(self, label='Close', pos=(350,125))
+        step_text = wx.StaticText(panel, label="Step Text")
+        step_text.SetFont(LABEL_FONT)
+        grid.Add(step_text, pos=(0, 1), flag=wx.ALIGN_CENTER)
 
-        # an object to draw the timer in the window client area
-        self.dc = wx.ClientDC(self)
-        font = wx.Font(30, wx.ROMAN, wx.NORMAL, wx.BOLD)
-        self.dc.SetFont(font)
+        self.time_text = wx.StaticText(panel, label='00:00')
+        self.time_text.SetFont(TIMER_FONT)
+        grid.Add(self.time_text, pos=(1, 1), flag=wx.ALIGN_CENTER)
+
+        mashtext = wx.StaticText(panel, label='Mash Steps')
+        mashtext.SetFont(LABEL_FONT)
+        grid.Add(mashtext, pos=(3, 0), flag=wx.ALIGN_CENTER)
+
+        boiltext = wx.StaticText(panel, label='Boil Steps')
+        boiltext.SetFont(LABEL_FONT)
+        grid.Add(boiltext, pos=(3, 2), flag=wx.ALIGN_CENTER)
+
+        mashlist = wx.ListBox(panel, choices=TESTLIST)
+        mashlist.SetFont(LIST_FONT)
+        grid.Add(mashlist, pos=(4, 0), span=(2, 1), flag=wx.EXPAND)
+
+        # buttons
+        self.stbtn = wx.Button(panel, label='Start', size=BTN_SIZE)
+        self.stbtn.SetFont(LABEL_FONT)
+        grid.Add(self.stbtn, pos=(4, 1), flag=wx.ALIGN_CENTER_HORIZONTAL)
+
+        self.rbtn = wx.Button(panel, label='Reset', size=BTN_SIZE)
+        self.rbtn.SetFont(LABEL_FONT)
+        grid.Add(self.rbtn, pos=(5, 1), flag=wx.ALIGN_CENTER_HORIZONTAL)
+
+        boillist = wx.ListBox(panel, choices=TESTLIST)
+        boillist.SetFont(LIST_FONT)
+        grid.Add(boillist, pos=(4, 2), span=(2, 1), flag=wx.EXPAND)
+
+        grid.Add(wx.StaticText(panel), pos=(6, 0))
+        
+        grid.AddGrowableCol(0)
+        grid.AddGrowableCol(1)
+        grid.AddGrowableCol(2)
+        grid.AddGrowableRow(5)
+        grid.AddGrowableRow(6)
+
+        vbox.Add(grid, proportion=1, flag=wx.ALIGN_CENTER|wx.EXPAND|wx.ALL,
+                 border=BORDER)
 
         # event bindings
         self.Bind(wx.EVT_MENU, self.recipe.OnShow, fitem1)
-        self.Bind(wx.EVT_MENU, self.BrewType, runitem2) # Mash
+        self.Bind(wx.EVT_MENU, self.CallMash, runitem2) # Mash
         self.Bind(wx.EVT_MENU, self.CallBoil, runitem3) # Boil
 
         self.Bind(wx.EVT_LISTBOX_DCLICK, self.BrewType)
@@ -65,24 +123,19 @@ class World(wx.Frame):
         # close the app
         # add close event binding for confirmation dialog !!!
         self.Bind(wx.EVT_MENU, self.CloseDlg, fitem2)
-        self.cbtn.Bind(wx.EVT_BUTTON, self.CloseDlg)
         self.Bind(wx.EVT_CLOSE, self.CloseDlg) #!!!
 
         # timer bindings
-        self.Bind(wx.EVT_TIMER, self.OnTimer, self.wxtimer)
+        self.Bind(wx.EVT_TIMER, self.OnTimer, self.wx_timer)
 
         self.stbtn.Bind(wx.EVT_BUTTON, self.OnRunning)
         self.rbtn.Bind(wx.EVT_BUTTON, self.OnReset)
         self.Bind(wx.EVT_MENU, self.setTimer.OnShow, runitem1)
         # event triggered from save button in SetTimer class
         self.Bind(wx.EVT_BUTTON, self.SetTime)
-
-        self.SetSize(SIZE)
-        self.SetTitle(TITLE)
-        self.Centre()
-        self.Show(True)
-
-        self.OnRefresh(None)
+        # AndFit auto sizes the window to fit all widgets
+        # do I need this? !!!
+        panel.SetSizerAndFit(vbox)
 
 #################################################################
 
@@ -93,7 +146,7 @@ class World(wx.Frame):
             self.TREE = ET.parse(self.XML)
             self.TIMER.GetXML(self.TREE)
             self.brewType = self.TIMER.GetBrewType()
-            self.mashSteps = self.TIMER.GetMashSteps()[:]
+            self.mash_steps = self.TIMER.GetMashSteps()[:]
             if self.Mashable:
                self.CallMash(None)
             else:
@@ -103,21 +156,23 @@ class World(wx.Frame):
             # may need to raise parse error dialog if fpath is bad!!!
             self.RecipeErrDlg()
 
+
     def CallMash(self, e):
         try:
-            if self.mashSteps != []:
-                self.mashFlag = True
-                step = self.mashSteps.pop(0)
+            if self.mash_steps != []:
+                self.mash_flag = True
+                step = self.mash_steps.pop(0)
                 self.TIMER.Set(step[1], 0)
                 self.OnRefresh(None)
             else:
                 self.CallBoil(None)
-                self.mashFlag = False
+                self.mash_flag = False
         except:
+
             self.RecipeErrDlg()
 
     def CallBoil(self, e):
-        self.mashFlag = False
+        self.mash_flag = False
         try:
             boil = self.TIMER.GetBoilTime()
             self.TIMER.Set(boil[0], boil[1])
@@ -143,10 +198,8 @@ class World(wx.Frame):
         """ Reset the display. """
         # a dict of {mn=int, sec=int, display=string}
         self.vals = self.TIMER.GetDisplay()
-        # clear the previous inforamtion
-        self.dc.Clear()
-        # redraw the new information
-        self.dc.DrawText(self.vals['display'], 260, 50)
+        self.time_text.SetLabel(self.vals['display'])
+        self.time_text.Refresh()
 
     def OnReset(self, e):
         """ Reset the timer """
@@ -176,7 +229,7 @@ class World(wx.Frame):
         # stop once we are at '00:00'
         if self.vals['display'] == '00:00':
             self.TIMER.Stop()
-            self.wxtimer.Stop()
+            self.wx_timer.Stop()
             self.stbtn.SetLabel('Start')
             self.CallMash
 
@@ -194,14 +247,14 @@ class World(wx.Frame):
         # start the timer unless we are a '00:00'
         if not self.TIMER.GetStatus() and self.vals['display'] != '00:00':
             self.stbtn.SetLabel('Pause')
-            self.wxtimer.Start(DELAY)
+            self.wx_timer.Start(DELAY)
             self.TIMER.Start()
             self.ShowHopDlg()
 
         # stop the timer
         else:
             self.TIMER.Stop()
-            self.wxtimer.Stop()
+            self.wx_timer.Stop()
             self.stbtn.SetLabel('Start')
 
 ############################################################################
@@ -237,7 +290,7 @@ class World(wx.Frame):
     def ShowHopDlg(self):
         # show the hop dialog when it's time to add hops
         if self.TIMER.AddHop() and self.TIMER.GetHops() != {} \
-        and self.mashFlag == False:
+        and self.mash_flag == False:
             self.HopDlg()
 
     def RecipeErrDlg(self):
@@ -251,6 +304,6 @@ class World(wx.Frame):
 
 
 if __name__ == '__main__':
-    app = wx.App()
+    #app = wx.App()
     World(None)
     app.MainLoop()
