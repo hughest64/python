@@ -148,3 +148,15 @@ def BrewType(self, e):
    for key in D.keys():
       for time in D[key]:
          print key, time[0]
+         
+   new version of GetMessage():
+   
+   def GetMessage(self):
+        """ Information about one hop from the beer.xml doc. """
+        # a tuple of (name(string), amount(int), time(int)) for a hop
+        s = self.TIMER.GetAddition()
+        hops = ''
+        for one in s:
+            hops += '{} oz of {}\n'.format(one[1], one[0])
+        
+        return '{} Minutes! Add: \n{}'.format(one[2], value)
