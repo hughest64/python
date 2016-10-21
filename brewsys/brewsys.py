@@ -110,7 +110,7 @@ class World(wx.Frame):
         grid.Add(wx.StaticText(panel), pos=(7, 0))
 
         grid.AddGrowableCol(0)
-        grid.AddGrowableCol(1)
+        #grid.AddGrowableCol(1)
         grid.AddGrowableCol(2)
         grid.AddGrowableRow(6)
         grid.AddGrowableRow(7)
@@ -217,11 +217,14 @@ class World(wx.Frame):
 
         hops = self.TIMER.GetHops()
         hopskeys = sorted(hops.keys(), reverse=True)
-
+        # hop is one key form the sorted dict
         for hop in hopskeys:
-            addition = hops[hop]
-            info = '{} min, {} oz {}'.format(addition[2], addition[1], addition[0])
-            self.boillist.Append(info)
+            # for each value in the dict
+            for info in hops[hop]:
+
+                addition = '{2} min, {1} oz {0}'.format(info[0], info[1], info[2])
+
+                self.boillist.Append(addition)
 
     def ParseErrDlg(self):
         """ This will need a pop up dialog!!! """
@@ -328,9 +331,13 @@ class World(wx.Frame):
 
     def GetMessage(self):
         """ Information about one hop from the beer.xml doc. """
-        # a tuple of (name(string), amount(int), time(int)) for a hop
+
         s = self.TIMER.GetAddition()
-        return '{2} Minutes!\nAdd {1} oz of {0}'.format(s[0], s[1], s[2])
+        hops = ''
+        for one in s:
+            hops += '{} oz of {}\n'.format(one[1], one[0])
+
+        return '{} Minutes! Add: \n{}'.format(one[2], hops)
 
     def ShowHopDlg(self):
         # show the hop dialog when it's time to add hops
