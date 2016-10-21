@@ -23,7 +23,7 @@ class Timer(object):
         self.brewtype = ''
         self.mashsteps = []
 
-    def Set(self, mn, sec):
+    def Set(self, mn=0, sec=0):
         """ Setting the timer. """
         # int mn, int sec for the countdown
         self.mn = mn
@@ -149,7 +149,14 @@ class Timer(object):
                 # a tuple of the collected information
                 l = (n,a,t)
                 # add them to a dictionary
-                hops[t] = l
+                #hops[t] = l
+                if t not in hops.keys():
+                    # add to to a dictionary inside a list
+                    hops[t] = [l]
+                else:
+                    # otherwise append it to the list
+                    hops[t].append(l)
+
             return hops
         # return the empty dict if there is no beer.xml file
         except:
@@ -182,46 +189,16 @@ class Timer(object):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # tests
 if __name__ == '__main__':
 
     timer = Timer()
-    timer.Set(60, 0)
-    tree = ET.parse('C:/Users/Todd/Desktop/brewsys/bsmith/Oktober-16.xml')
-    '''timer.GetXML(tree)
-    vals = timer.GetDisplay()
-    #print timer.GetHops()
-    print timer.GetBoilTime()
-    print timer.GetBrewType()
-    while vals['mn'] >= 0:
-        if timer.AddHop():
-            print vals['display']
-            print timer.GetAddition()
-        timer.Run()
-        vals = timer.GetDisplay()'''
-
-    print timer.GetMashXML()
+    timer.Set(60)
+    tree = ET.parse('C:/Users/Todd/Desktop/brewsys/recipes/Furious.xml')
+    timer.GetXML(tree)
+    hops = timer.GetHops()
+    print hops
+    hop = timer.GetAddition()
+    print hop
 
 ### End of File ###
