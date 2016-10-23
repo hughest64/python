@@ -148,6 +148,7 @@ class World(wx.Frame):
 
     def LoadRecipe(self, e):
         """ load a timer based upon the brewing style """
+        # rename OnRecipSelect !!!
         try:
             self.XML = self.recipe.GetRecipe()
             self.TREE = ET.parse(self.XML)
@@ -160,6 +161,7 @@ class World(wx.Frame):
             self.boil_flag = True
 
             self.LoadSteps()
+            #self.first_wort = self.TIMER.GetFirstWort()
 
             if self.IsMashable:
                self.CallMash(None)
@@ -168,7 +170,7 @@ class World(wx.Frame):
 
         except:
             # may need to raise parse error dialog if fpath is bad!!!
-            self.ParseErrDlg()
+            self.RecipeErrDlg()
 
     def IsMashable(self):
         # should patial mash and biab be included? !!!
@@ -203,12 +205,9 @@ class World(wx.Frame):
             # refresh the display
             self.UpdateTimer()
             self.step_count = 99
-            hops = self.TIMER.GetHops()
-            for hop in hops.itervalues():
-                for use in hop:
-                    if use[3] == 'First Wort':
-                        self.first_wort = use
-                        self.FWHDlg()
+
+            if self.first_wort != []:
+                self.HopDlg(self.first_wort)
 
         except:
             # a message dialong would nice here !!!
@@ -229,17 +228,22 @@ class World(wx.Frame):
         self.boillist.Clear()
         for count, info in enumerate(self.mash_steps):
             step = '{}: {} {} degrees'.format((count+1), info[0], info[2])
+
             self.mashlist.Append(step)
 
         hops = self.TIMER.GetHops()
+        self.first_wort = self.TIMER.GetFirstWort()
         hopskeys = sorted(hops.keys(), reverse=True)
-        # hop is one key form the sorted dict
+
+        for one in self.first_wort:
+            addition = '{2}, {1} oz {0}'.format(one[0], one[1], one[2])
+            self.boillist.Append(addition)
+        # hop is a key form the sorted dict
         for hop in hopskeys:
             # for each value in the dict
             for info in hops[hop]:
-
+                #self.hopslist.append(info)
                 addition = '{2} min, {1} oz {0}'.format(info[0], info[1], info[2])
-
                 self.boillist.Append(addition)
 
     def ParseErrDlg(self):
@@ -276,15 +280,7 @@ class World(wx.Frame):
         self.wx_timer.Stop()
 
     def OnTimerRun(self, e):
-
         """ Decrement and redraw the timer """
-        if self.vals['mn'] >= 0 and self.TIMER.GetStatus():
-            # decrement the timer
-            self.TIMER.Run()
-            # redraw the display
-            self.UpdateTimer()
-            # show a hop dialog if necessary
-            self.ShowHopDlg()
         # stop once we are at '00:00'
         if self.vals['display'] == '00:00':
             self.StopTimer()
@@ -292,6 +288,14 @@ class World(wx.Frame):
                 self.boil_flag = False
                 self.mash_flag = True
             self.CallMash(None)
+
+        if self.vals['mn'] >= 0 and self.TIMER.GetStatus():
+            # decrement the timer
+            self.TIMER.Run()
+            # redraw the display
+            self.UpdateTimer()
+            # show a hop dialog if necessary
+            self.ShowHopDlg()
 
 ############################################################################
 
@@ -335,35 +339,28 @@ class World(wx.Frame):
 
 #################################################################
 
-    def HopDlg(self):
+    def HopDlg(self, msg):
         """ Dialog box for a reminder to add some hops """
-        # a string to display hop information
-        msg = self.GetMessage()
-        # the dialog box object
-        dlg = wx.MessageDialog(self, msg, "Hop Addition",
+        hops = ''
+        for one in msg:
+            hops += '{} oz {}\n'.format(one[1], one[0])
+
+        addition = '{} Add: \n{}'.format(one[2], hops)
+
+        dlg = wx.MessageDialog(self, addition, "Hop Addition",
                                wx.OK|wx.ICON_INFORMATION)
         dlg.ShowModal()
         dlg.Destroy()
 
-    def GetMessage(self):
-        """ Information about one hop from the beer.xml doc. """
-        msg = self.TIMER.GetAddition()
-        hops = ''
-        for one in msg:
-            if one[3] != 'First Wort':
-                hops += '{} oz {}\n'.format(one[1], one[0])
-
-        return '{} Minutes! Add: \n{}'.format(one[2], hops)
-
     def ShowHopDlg(self):
         # show the hop dialog when it's time to add hops
-        if self.TIMER.AddHop() and self.TIMER.GetHops() != {} \
-        and self.mash_flag == False:
-            self.HopDlg()
+        if self.TIMER.AddHop() and self.mash_flag == False:
+            hop = self.TIMER.GetAddition()
+            self.HopDlg(hop)
 
     def FWHDlg(self):
         # a string to display hop information
-        info = self.first_wort
+        info = self.first_wort[0]
         msg = 'Add First Wort Hops!\n{} oz {}'.format(info[1], info[0])
         # the dialog box object
         dlg = wx.MessageDialog(self, msg, "Hop Addition",

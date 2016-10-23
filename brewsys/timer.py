@@ -136,7 +136,8 @@ class Timer(object):
         tuple of (name(string), amount(int), time(int))
         as the value
         """
-        hops = {}
+        boil_hops = {}
+        self.first_wort = []
         # if there is a beer.xml file which can be parsed
         try:
             for h in self.hops:
@@ -150,17 +151,24 @@ class Timer(object):
                     n =  h[0].text
                     # a tuple of the collected information
                     l = (n, a, t, use)
+
+                    if use == 'First Wort':
+                        self.first_wort.append((n, a, 'FW', use))
                     # add them to a dictionary
-                    if t not in hops.keys():
+                    elif t not in boil_hops.keys():
                         # add to to a dictionary inside a list
-                        hops[t] = [l]
+                        boil_hops[t] = [l]
                     else:
                         # otherwise append it to the list
-                        hops[t].append(l)
-            return hops
+                        boil_hops[t].append(l)
+
+            return boil_hops
         # return the empty dict if there is no beer.xml file
         except:
-            return "it's actually an error, not just an empty dict"#hops
+            return boil_hops
+
+    def GetFirstWort(self):
+        return self.first_wort
 
     def GetAddition(self):
         """
@@ -200,7 +208,9 @@ if __name__ == '__main__':
     timer.GetXML(tree)
     hops = timer.GetHops()
     print hops
-    #hop = timer.GetAddition()
-    #print hop
+    hop = timer.GetAddition()
+    print hop
+    fw = timer.GetFirstWort()
+    print fw
 
 ### End of File ###
