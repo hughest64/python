@@ -127,7 +127,7 @@ class Timer(object):
 
     def GetBoilTime(self):
         """ Returns the boil time as tuple of (int mn int sec) """
-        boil = (int(float(self.boil)), 0)
+        boil = int(float(self.boil))
         return boil
 
     def GetHops(self):
@@ -140,35 +140,37 @@ class Timer(object):
         # if there is a beer.xml file which can be parsed
         try:
             for h in self.hops:
-                # time of addition
-                t = int(float(h[6].text))
-                # amonunt of addition converted to ounces
-                a = round(float(h[4].text) * 35.274, 2)
-                # name of the hop
-                n =  h[0].text
-                # a tuple of the collected information
-                l = (n,a,t)
-                # add them to a dictionary
-                #hops[t] = l
-                if t not in hops.keys():
-                    # add to to a dictionary inside a list
-                    hops[t] = [l]
-                else:
-                    # otherwise append it to the list
-                    hops[t].append(l)
-
+                use = h[5].text
+                if use != 'Dry Hop':
+                    # time of addition
+                    t = int(float(h[6].text))
+                    # amonunt of addition converted to ounces
+                    a = round(float(h[4].text) * 35.274, 2)
+                    # name of the hop
+                    n =  h[0].text
+                    # a tuple of the collected information
+                    l = (n, a, t, use)
+                    # add them to a dictionary
+                    if t not in hops.keys():
+                        # add to to a dictionary inside a list
+                        hops[t] = [l]
+                    else:
+                        # otherwise append it to the list
+                        hops[t].append(l)
             return hops
         # return the empty dict if there is no beer.xml file
         except:
-            return hops
+            return "it's actually an error, not just an empty dict"#hops
 
     def GetAddition(self):
         """
         returns a single hop additon as
         tuple of (name, amt, time)?
         """
+
         hops = self.GetHops() # our dict of hops
         hop = hops[self.mn]   # values from the current time
+
         return hop
 
     def AddHop(self):
@@ -198,7 +200,7 @@ if __name__ == '__main__':
     timer.GetXML(tree)
     hops = timer.GetHops()
     print hops
-    hop = timer.GetAddition()
-    print hop
+    #hop = timer.GetAddition()
+    #print hop
 
 ### End of File ###

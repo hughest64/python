@@ -40,6 +40,7 @@ class World(wx.Frame):
         self.mash_steps = []
         self.mash_flag = False
         self.boil_flag = True
+        self.step_count = 0
 
         self.InitUI()
 
@@ -110,7 +111,7 @@ class World(wx.Frame):
         grid.Add(wx.StaticText(panel), pos=(7, 0))
 
         grid.AddGrowableCol(0)
-        #grid.AddGrowableCol(1)
+        #grid.AddGrowableCol(1)!!!
         grid.AddGrowableCol(2)
         grid.AddGrowableRow(6)
         grid.AddGrowableRow(7)
@@ -133,7 +134,7 @@ class World(wx.Frame):
         # timer bindings
         self.Bind(wx.EVT_TIMER, self.OnTimerRun, self.wx_timer)
 
-        self.stbtn.Bind(wx.EVT_BUTTON, self.OnTimerStart)
+        self.stbtn.Bind(wx.EVT_BUTTON, self.OnTimerToggle)
         self.rbtn.Bind(wx.EVT_BUTTON, self.OnReset)
         self.nxtbtn.Bind(wx.EVT_BUTTON, self.OnNextStep)
         self.Bind(wx.EVT_MENU, self.setTimer.OnShow, runitem1)
@@ -175,12 +176,12 @@ class World(wx.Frame):
         return self.brew_type == 'All Grain'
 
     def CallMash(self, e):
+        self.StopTimer()
         try:
             if self.mash_steps != [] and self.step_count < self.steps:
                 self.mash_flag = True
-                #step = self.mash_steps.pop(0)
                 step = self.mash_steps[self.step_count]
-                self.TIMER.Set(step[1], 0)
+                self.TIMER.Set(step[1])
                 self.UpdateTimer()
                 self.step_count += 1
 
@@ -192,21 +193,36 @@ class World(wx.Frame):
             self.RecipeErrDlg()
 
     def CallBoil(self, e):
+        self.StopTimer()
         self.mash_flag = False
         self.boil_flag = True
 
         try:
             boil = self.TIMER.GetBoilTime()
-            self.TIMER.Set(boil[0], boil[1])
+            self.TIMER.Set(boil)
             # refresh the display
             self.UpdateTimer()
+            self.step_count = 99
+            hops = self.TIMER.GetHops()
+            for hop in hops.itervalues():
+                for use in hop:
+                    if use[3] == 'First Wort':
+                        self.first_wort = use
+                        self.FWHDlg()
 
         except:
             # a message dialong would nice here !!!
             self.RecipeErrDlg()
 
     def OnNextStep(self, e):
-        self.CallMash(None)
+        if self.step_count == 99:
+            self.StopTimer()
+            self.TIMER.Set(0)
+            self.UpdateTimer()
+
+        elif self.mash_steps != []:
+            self.StopTimer()
+            self.CallMash(None)
 
     def LoadSteps(self):
         self.mashlist.Clear()
@@ -239,34 +255,29 @@ class World(wx.Frame):
 
 ################################################################
 
-    def OnTimerStart(self, e):
-        """ Start and stop the timer. """
-        # start the timer unless we are a '00:00'
+    def OnTimerToggle(self, e):
         if not self.TIMER.GetStatus() and self.vals['display'] != '00:00':
-            self.stbtn.SetLabel('Pause')
-            self.wx_timer.Start(DELAY)
-            self.TIMER.Start()
-            self.ShowHopDlg()
-        # stop the timer
+            self.StartTimer()
+
         else:
-            self.TIMER.Stop()
-            self.wx_timer.Stop()
-            self.stbtn.SetLabel('Start')
+            self.StopTimer()
+
+    def StartTimer(self):
+        """ Start the timer."""
+        self.stbtn.SetLabel('Pause')
+        self.wx_timer.Start(DELAY)
+        self.TIMER.Start()
+        self.ShowHopDlg()
+
+    def StopTimer(self):
+        """ Stop the timer."""
+        self.stbtn.SetLabel('Start')
+        self.TIMER.Stop()
+        self.wx_timer.Stop()
 
     def OnTimerRun(self, e):
 
         """ Decrement and redraw the timer """
-        # stop once we are at '00:00'
-        if self.vals['display'] == '00:00':
-            self.TIMER.Stop()
-            self.wx_timer.Stop()
-            self.stbtn.SetLabel('Start')
-            if self.mash_flag == False:
-                self.boil_flag = False
-                self.mash_flag = True
-
-            self.CallMash(None)
-
         if self.vals['mn'] >= 0 and self.TIMER.GetStatus():
             # decrement the timer
             self.TIMER.Run()
@@ -274,15 +285,20 @@ class World(wx.Frame):
             self.UpdateTimer()
             # show a hop dialog if necessary
             self.ShowHopDlg()
+        # stop once we are at '00:00'
+        if self.vals['display'] == '00:00':
+            self.StopTimer()
+            if self.mash_flag == False:
+                self.boil_flag = False
+                self.mash_flag = True
+            self.CallMash(None)
 
 ############################################################################
 
     def SetTime(self, e):
         # can this be used elsewhere? !!!
         """ Sets the timer with tuple from SetTimer class """
-        if self.TIMER.GetStatus():
-            self.OnTimerStart(None)
-
+        self.StopTimer()
         vals = self.setTimer.GetTime()
         self.TIMER.Set(vals[0], vals[1])
         self.UpdateTimer()
@@ -297,7 +313,7 @@ class World(wx.Frame):
 
     def OnReset(self, e):
         """ Reset the timer """
-        self.stbtn.SetLabel('Start')
+        self.StopTimer()
         self.TIMER.Reset()
         self.UpdateTimer()
 
@@ -331,11 +347,11 @@ class World(wx.Frame):
 
     def GetMessage(self):
         """ Information about one hop from the beer.xml doc. """
-
-        s = self.TIMER.GetAddition()
+        msg = self.TIMER.GetAddition()
         hops = ''
-        for one in s:
-            hops += '{} oz of {}\n'.format(one[1], one[0])
+        for one in msg:
+            if one[3] != 'First Wort':
+                hops += '{} oz {}\n'.format(one[1], one[0])
 
         return '{} Minutes! Add: \n{}'.format(one[2], hops)
 
@@ -344,6 +360,16 @@ class World(wx.Frame):
         if self.TIMER.AddHop() and self.TIMER.GetHops() != {} \
         and self.mash_flag == False:
             self.HopDlg()
+
+    def FWHDlg(self):
+        # a string to display hop information
+        info = self.first_wort
+        msg = 'Add First Wort Hops!\n{} oz {}'.format(info[1], info[0])
+        # the dialog box object
+        dlg = wx.MessageDialog(self, msg, "Hop Addition",
+                               wx.OK|wx.ICON_INFORMATION)
+        dlg.ShowModal()
+        dlg.Destroy()
 
 
 if __name__ == '__main__':
