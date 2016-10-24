@@ -160,3 +160,47 @@ def BrewType(self, e):
             hops += '{} oz of {}\n'.format(one[1], one[0])
         
         return '{} Minutes! Add: \n{}'.format(one[2], value)
+        
+        
+################################################### more ideas
+
+brewsteps = [{'Mash' : [('sach', 150, 60), 
+            ('Mash Out', 175, 10)]},
+ {'First Wort' : [('Saaz', 1, 60)]},
+ {'Boil' : {60 : [('Cascade', 1, 60 ), 
+                  ('Chinook', .5, 60 ) ], 
+             0 : [('Simcoe', 2, 0 ) ] }}]
+
+mashsteps = brewsteps[0]['Mash'] #- list 
+
+firstwort = []#brewsteps [1]['First Wort']#- list
+
+boil = brewsteps[2]['Boil'] #- dict
+print brewsteps
+print
+print mashsteps
+print
+print firstwort
+print
+print boil
+
+#MashMethod:
+mashstep = 0
+steps = len(mashsteps)
+
+while mashstep < (steps+1):
+	if mashstep < steps:
+	    #SetTime(mashsteps[step][2])
+	    print mashsteps[mashstep][2]
+	    mashstep += 1	    
+	
+	elif firstwort != []:
+		   print firstwort
+	    #     <show hop dialog for FWH>
+	    # <change to Boil method>
+	    # <reset step to 0?>
+		   print 'Going to Boil'
+		   break
+	else:
+		   print 'Going to Boil'
+		   break
