@@ -188,19 +188,20 @@ print boil
 mashstep = 0
 steps = len(mashsteps)
 
-while mashstep < (steps+1):
+while mashstep < (steps+1): # this would be the natural result of calling CallMash() when the timer is 00:00
 	if mashstep < steps:
 	    #SetTime(mashsteps[step][2])
 	    print mashsteps[mashstep][2]
 	    mashstep += 1	    
-	
+
 	elif firstwort != []:
-		   print firstwort
-	    #     <show hop dialog for FWH>
+		print firstwort # pop dialog for hop addition
+	    # <show hop dialog for FWH>
 	    # <change to Boil method>
 	    # <reset step to 0?>
-		   print 'Going to Boil'
-		   break
+		
+		print 'Going to Boil'
+		break # remove this !!!
 	else:
-		   print 'Going to Boil'
-		   break
+		print 'Going to Boil' # set the boil timer and go!
+		break #remove this !!!
