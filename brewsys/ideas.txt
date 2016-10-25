@@ -164,18 +164,19 @@ def BrewType(self, e):
         
 ################################################### more ideas
 
-brewsteps = [{'Mash' : [('sach', 150, 60), 
-            ('Mash Out', 175, 10)]},
- {'First Wort' : [('Saaz', 1, 60)]},
- {'Boil' : {60 : [('Cascade', 1, 60 ), 
-                  ('Chinook', .5, 60 ) ], 
-             0 : [('Simcoe', 2, 0 ) ] }}]
+brewsteps = {'Mash' : [('sach', 150, 60), ('Mash Out', 175, 10)],
+             'First Wort' : [('Saaz', 1, 60), ('Hallertau', .5, 60)],
+             'Boil' : {60 : [('Cascade', 1, 60 ), ('Chinook', .5, 60 ) ], 0 : [('Simcoe', 2, 0 )]}}
 
-mashsteps = brewsteps[0]['Mash'] #- list 
+mashsteps = brewsteps['Mash'] #- list 
 
-firstwort = []#brewsteps [1]['First Wort']#- list
+firstwort = brewsteps['First Wort']#- list
 
-boil = brewsteps[2]['Boil'] #- dict
+boil = brewsteps['Boil'] #- dict
+
+mashstep = 0
+steps = len(mashsteps)
+
 print brewsteps
 print
 print mashsteps
@@ -185,9 +186,6 @@ print
 print boil
 
 #MashMethod:
-mashstep = 0
-steps = len(mashsteps)
-
 while mashstep < (steps+1): # this would be the natural result of calling CallMash() when the timer is 00:00
 	if mashstep < steps:
 	    #SetTime(mashsteps[step][2])
@@ -195,13 +193,18 @@ while mashstep < (steps+1): # this would be the natural result of calling CallMa
 	    mashstep += 1	    
 
 	elif firstwort != []:
-		print firstwort # pop dialog for hop addition
 	    # <show hop dialog for FWH>
-	    # <change to Boil method>
-	    # <reset step to 0?>
+		for hop in firstwort:
+			print hop # pop dialog for hop addition
+			
+	    # <reset step to 0?> I don't think I'll do this, 
+	    # may be better to leave it at len(mashsteps) and only reset when you callmash()
 		
+	    # <change to Boil method>
 		print 'Going to Boil'
-		break # remove this !!!
+		break #remove this !!!
+	
 	else:
-		print 'Going to Boil' # set the boil timer and go!
+		# set the boil timer and go!
+		print 'Going to Boil' 
 		break #remove this !!!
