@@ -22,7 +22,8 @@ class Timer(object):
         # add comment !!!
         self.brewtype = ''
         self.mashsteps = []
-
+    # should there be an assert to force setting with an int? !!!
+    # assert type(mn) == int, something like this
     def Set(self, mn=0, sec=0):
         """ Setting the timer. """
         # int mn, int sec for the countdown
@@ -136,7 +137,7 @@ class Timer(object):
         tuple of (name(string), amount(int), time(int))
         as the value
         """
-        boil_hops = {}
+        self.boil_hops = {}
         self.first_wort = []
         # if there is a beer.xml file which can be parsed
         try:
@@ -155,17 +156,17 @@ class Timer(object):
                     if use == 'First Wort':
                         self.first_wort.append((n, a, 'FW', use))
                     # add them to a dictionary
-                    elif t not in boil_hops.keys():
+                    elif t not in self.boil_hops.keys():
                         # add to to a dictionary inside a list
-                        boil_hops[t] = [l]
+                        self.boil_hops[t] = [l]
                     else:
                         # otherwise append it to the list
-                        boil_hops[t].append(l)
+                        self.boil_hops[t].append(l)
 
-            return boil_hops
+            return self.boil_hops
         # return the empty dict if there is no beer.xml file
         except:
-            return boil_hops
+            return self.boil_hops
 
     def GetFirstWort(self):
         return self.first_wort
@@ -195,7 +196,14 @@ class Timer(object):
 
     def GetMashSteps(self):
         return self.mashsteps
+#---------------------------------------------------------------------
 
+    def GetAllSteps(self):
+        self.GetHops()
+        all_steps = {'Mash':self.mashsteps, 'Firstwort':self.first_wort,
+                     'Boil':self.boil_hops}
+
+        return all_steps
 
 
 
@@ -212,5 +220,7 @@ if __name__ == '__main__':
     print hop
     fw = timer.GetFirstWort()
     print fw
+    steps = timer.GetAllSteps()
+    print steps
 
 ### End of File ###
