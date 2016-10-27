@@ -208,3 +208,59 @@ while mashstep < (steps+1): # this would be the natural result of calling CallMa
 		# set the boil timer and go!
 		print 'Going to Boil' 
 		break #remove this !!!
+
+move StopTimer to CallSteps method, and remove from CallMash, CallBoil, and OnNextStep !!!
+
+    def CallSteps(self):
+        self.StopTimer()
+        boil_time = self.TIMER.GetBoilTime() # make a self method and move to LoadSteps()!!!
+
+        if self.step_count < self.steps:
+            step = self.mash_steps[self.step_count]
+            self.TIMER.Set(self.mash_steps[self.step_count][1])
+            self.UpdateTimer()
+            self.step_count += 1
+
+            # helper function !!!
+            label = step[0]
+            label2 = str(step[1]) + ' Minutes'
+            self.ChangeLabels(label, label2)
+            
+            #self.step_text.SetLabel(label)
+            #self.step_text2.SetLabel(label2)
+            #self.grid.Layout()
+
+        elif self.first_wort != [] and self.step_count != 99:
+            self.HopDlg(self.first_wort)
+            self.TIMER.Set(boil_time)
+            self.UpdateTimer()
+            self.step_count = 99
+
+            # helper function !!!
+            label = 'Boil'
+            label2 = str(boil_time) + ' Minutes'
+            self.ChangeLabels(label, label2)
+            
+            #self.step_text.SetLabel(label)
+            #self.step_text2.SetLabel(label2)
+            #self.grid.Layout()
+
+        elif self.step_count != 99:
+            self.TIMER.Set(boil_time)
+            self.UpdateTimer()
+            self.step_count = 99
+
+            # helper function !!!
+            label = 'Boil'
+            label2 = str(boil_time) + ' Minutes'
+            self.ChangeLabels(label, label2)
+            
+            # self.step_text.SetLabel(label)
+            # self.step_text2.SetLabel(label2)
+            # self.grid.Layout()
+            
+    def ChangeLabels(self, label, label2):
+    	
+    	self.step_text.SetLabel(label)
+        self.step_text2.SetLabel(label2)
+        self.grid.Layout()
