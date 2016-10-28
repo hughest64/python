@@ -20,19 +20,21 @@ class Timer(object):
         self.brewtype = ''
         self.mashsteps = []
         
-    # should there be an assert to force setting with an int? !!!
-    # assert type(mn) == int, something like this
+    # should there be an assert to force setting with an int? !!!    
     def Set(self, mn=0, sec=0):
-        """ Setting the timer. """
-        # int mn, int sec for the countdown
+        """ 
+        Setting the timer.
+        """        
         self.mn = mn
         self.sec = sec
-        # vaues stored away for Reset() method
+        
         self.resetMn = mn
         self.resetSec = sec
 
     def Run(self):
-        """ The actual count down. """        
+        """ 
+        The actual count down.
+        """        
         if self.sec == 0:
             self.mn -= 1
             self.sec = 59
@@ -78,7 +80,7 @@ class Timer(object):
         
         return timerVals
 
-    def GetStatus(self):
+    def GetStatus(self): # rename this method IsRunning !!!
         """ 
         Returns the current run status of the timer.
         """
@@ -97,16 +99,19 @@ class Timer(object):
         try:
             # get the recipe element of the xml tree
             self.recipe = t.getroot()[0]
+            
             # the hops element
             self.hops = self.recipe[9]
             # the boil element
             self.boil = self.recipe[7].text
             # the brew type all grain or extract
             self.brewtype = self.recipe[2].text
+            
             # the mash steps
             mash = self.recipe.find('MASH')
             steps = mash.find('MASH_STEPS')
             self.mashsteps = []
+            
             for step in steps.findall('MASH_STEP'):
                 name = step.find('NAME').text
                 time = int(float(step.find('STEP_TIME').text))
