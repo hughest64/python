@@ -49,7 +49,8 @@ class Timer(object):
         self.status = True
 
     def Stop(self):
-        """ Stop the timer.
+        """ 
+        Stop the timer.
         """
         self.status = False
 
