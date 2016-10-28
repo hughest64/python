@@ -43,11 +43,14 @@ class Timer(object):
             self.sec -= 1
 
     def Start(self):
-        """ Start the timer. """
+        """ 
+        Start the timer.
+        """        
         self.status = True
 
     def Stop(self):
-        """ Stop the timer. """
+        """ Stop the timer.
+        """
         self.status = False
 
     def Reset(self):
