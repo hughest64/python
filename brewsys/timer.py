@@ -8,20 +8,18 @@ TODO:
 class Timer(object):
     """ a collection of timer controls for a brewing system."""
     def __init__(self, mn=0, sec=0):
-        # defualt values #
-        # minutes - (int), second(int)
+        
         self.mn = mn
-        self.sec = sec
-        # timer reset values - minutes (int), second(int)
+        self.sec = sec       
         self.resetMn = mn
-        self.resetSec = sec
-        # False if the timer is not running
-        self.status = False
-        # Is the current self.mn in a dict of hops?
-        self.addition = False
-        # add comment !!!
+        self.resetSec = sec  
+        
+        self.status = False       
+        self.addition = False   
+        
         self.brewtype = ''
         self.mashsteps = []
+        
     # should there be an assert to force setting with an int? !!!
     # assert type(mn) == int, something like this
     def Set(self, mn=0, sec=0):
@@ -34,7 +32,7 @@ class Timer(object):
         self.resetSec = sec
 
     def Run(self):
-        """ The actual count down. """
+        """ The actual count down. """        
         if self.sec == 0:
             self.mn -= 1
             self.sec = 59
@@ -43,16 +41,18 @@ class Timer(object):
             self.sec -= 1
 
     def Start(self):
-        """ A flag for starting the timer. """
+        """ Start the timer. """
         self.status = True
 
     def Stop(self):
-        """ A flag for stopping the timer. """
+        """ Stop the timer. """
         self.status = False
 
     def Reset(self):
-        """ Resets the timer to previous self.Set value. """
-        # stop the timer first
+        """ 
+        Resets the timer to previous self.Set value.
+        """
+        # stop the timer first # remove this check! this should be done by the main program only!!!
         if self.status:
             self.status = False
         # reset mn/sec values
@@ -61,28 +61,30 @@ class Timer(object):
     def GetDisplay(self):
         """
         Returns a dict of int mn, int sec, string 'mn:sec'
-        """
-        # add a '0' to maintain two digit places
+        """        
         if self.mn < 10:
             strMn = '0' + str(self.mn)
         else:
             strMn = str(self.mn)
-        # add a '0' to maintain two digit places
+        
         if self.sec < 10:
            strSec = '0' + str(self.sec)
+        
         else:
            strSec = str(self.sec)
 
-        disp = (strMn + ':' + strSec)
-        # dictionary for use in the main program module
+        disp = (strMn + ':' + strSec)        
         timerVals = {'mn':self.mn, 'sec':self.sec, 'display':disp}
+        
         return timerVals
 
     def GetStatus(self):
-        """ Returns the current run status of the timer. """
+        """ 
+        Returns the current run status of the timer.
+        """
         return self.status
 
-###################################################################
+#-------------------Beer XML methods---------------------------------
 
     def GetXML(self, t):
         """
@@ -106,13 +108,12 @@ class Timer(object):
             steps = mash.find('MASH_STEPS')
             self.mashsteps = []
             for step in steps.findall('MASH_STEP'):
-
                 name = step.find('NAME').text
                 time = int(float(step.find('STEP_TIME').text))
-
+                
                 tempsplit = step.find('DISPLAY_STEP_TEMP').text.split()
                 temp = (int(float(tempsplit[0])))
-
+                
                 elements = (name, time, temp)
                 self.mashsteps.append(elements)
 
