@@ -1,10 +1,17 @@
-### This file is for testing purposes for any lil' ol' thing at all ###
 import wx
 import xml.etree.ElementTree as ET
 
 from timer import *
 from brewlist import *
 from settimer import *
+
+"""
+TODO:
+finish ParseErrDlg() method
+helper method for setting step labels
+reorder mehods
+clean up LoadSteps - rename - and HopDlg parsing if possible
+"""
 
 app = wx.App()
 
@@ -25,7 +32,7 @@ BORDER = 20
 BTN_SIZE = (90, 30)
 
 class World(wx.Frame):
-    # update !!!
+
     def __init__(self, *args, **kwargs):
         super(World, self).__init__(*args, **kwargs)
 
@@ -34,9 +41,8 @@ class World(wx.Frame):
 
         self.wx_timer = wx.Timer(self)
         self.TIMER = Timer()
-        #self.vals = self.TIMER.GetDisplay() # is this needed? !!!
-        #self.mash_steps = []
-        #self.step_count = 0
+
+        self.step_count = 0
 
         self.InitUI()
 
@@ -168,8 +174,8 @@ class World(wx.Frame):
             self.RecipeErrDlg()
     # add helper function!!!
     def CallSteps(self):
-
         boil_time = self.TIMER.GetBoilTime()
+        self.StopTimer()
 
         if self.step_count < self.steps:
             step = self.mash_steps[self.step_count]
@@ -185,9 +191,9 @@ class World(wx.Frame):
             self.grid.Layout()
 
         elif self.first_wort != [] and self.step_count != 99:
-            self.HopDlg(self.first_wort)
             self.TIMER.Set(boil_time)
             self.UpdateTimer()
+            self.HopDlg(self.first_wort)
             self.step_count = 99
 
             # helper function !!!
@@ -212,17 +218,17 @@ class World(wx.Frame):
     def LoadSteps(self):
         self.mashlist.Clear()
         self.boillist.Clear()
+
         for count, info in enumerate(self.mash_steps):
             step = '{}: {} {} degrees'.format((count+1), info[0], info[2])
-
             self.mashlist.Append(step)
-
-        hopskeys = sorted(self.boil_steps.keys(), reverse=True)
 
         for one in self.first_wort:
             addition = '{2}, {1} oz {0}'.format(one[0], one[1], one[2])
             self.boillist.Append(addition)
-        # hop is a key form the sorted dict
+
+        # hop is a key from the sorted dict
+        hopskeys = sorted(self.boil_steps.keys(), reverse=True)
         for hop in hopskeys:
             # for each value in the dict
             for info in self.boil_steps[hop]:
@@ -263,7 +269,8 @@ class World(wx.Frame):
 ################################################################
 
     def OnTimerToggle(self, e):
-        if not self.TIMER.GetStatus() and self.vals['display'] != '00:00':
+
+        if self.vals != '00:00' and not self.TIMER.GetStatus():
             self.StartTimer()
 
         else:
@@ -286,11 +293,14 @@ class World(wx.Frame):
     def OnTimerRun(self, e):
         """ Decrement and redraw the timer """
         # stop once we are at '00:00'
-        if self.vals['display'] == '00:00':
-            self.StopTimer()
-            self.CallSteps()
+        if self.vals == '00:00':
+            try:
+                self.CallSteps()
+            except:
+                #pass
+                self.StopTimer()
 
-        if self.vals['mn'] >= 0 and self.TIMER.GetStatus():
+        else:
             # decrement the timer
             self.TIMER.Run()
             # redraw the display
@@ -300,34 +310,31 @@ class World(wx.Frame):
                 self.ShowHopDlg()
 
 ############################################################################
-    # update !!!
+
     def SetTime(self, e):
-        # can this be used elsewhere? !!!
         """ Sets the timer with tuple from SetTimer class """
         self.StopTimer()
         vals = self.setTimer.GetTime()
-        self.TIMER.Set(vals[0], vals[1]) # only need to use vals[0] to start!!!
+        self.TIMER.Set(vals[0], vals[1])
         self.UpdateTimer()
 
 ###########################################################################
 
-    def UpdateTimer(self): # !!!
+    def UpdateTimer(self):
         """ Reset the display. """
-        # a dict of {int mn, int sec, string display}
         self.vals = self.TIMER.GetDisplay()
-        self.time_text.SetLabel(self.vals['display'])
+        self.time_text.SetLabel(self.vals)
 
     def OnReset(self, e):
         """ Reset the timer """
         self.StopTimer()
         self.TIMER.Reset()
         self.UpdateTimer()
-    # this curently pauses a timer when no recipe is loaded
-    # because no error occurs !!!
+
     def OnNextStep(self, e):
         try:
-            self.StopTimer()
             self.CallSteps()
+
         except:
             pass
 

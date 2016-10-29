@@ -8,33 +8,28 @@ TODO:
 class Timer(object):
     """ a collection of timer controls for a brewing system."""
     def __init__(self, mn=0, sec=0):
-        
-        self.mn = mn
-        self.sec = sec       
-        self.resetMn = mn
-        self.resetSec = sec  
-        
-        self.status = False       
-        self.addition = False   
-        
-        self.brewtype = ''
-        self.mashsteps = []
-        
-    # should there be an assert to force setting with an int? !!!    
-    def Set(self, mn=0, sec=0):
-        """ 
-        Setting the timer.
-        """        
         self.mn = mn
         self.sec = sec
-        
+        self.resetMn = mn
+        self.resetSec = sec
+
+        self.status = False
+        self.addition = False
+
+        self.brewtype = ''
+        self.mashsteps = []
+
+    # should there be an assert to force setting with an int? !!!
+    def Set(self, mn=0, sec=0):
+        """ Setting the timer. """
+        self.mn = mn
+        self.sec = sec
+
         self.resetMn = mn
         self.resetSec = sec
 
     def Run(self):
-        """ 
-        The actual count down.
-        """        
+        """ The actual count down. """
         if self.sec == 0:
             self.mn -= 1
             self.sec = 59
@@ -43,54 +38,30 @@ class Timer(object):
             self.sec -= 1
 
     def Start(self):
-        """ 
-        Start the timer.
-        """        
+        """ A flag for starting the timer. """
         self.status = True
 
     def Stop(self):
-        """ 
-        Stop the timer.
-        """
+        """ A flag for stopping the timer. """
         self.status = False
 
     def Reset(self):
-        """ 
-        Resets the timer to previous self.Set value.
-        """
-        # stop the timer first # remove this check! this should be done by the main program only!!!
-        if self.status:
-            self.status = False
-        # reset mn/sec values
+        """ Resets the timer to previous self.Set value. """
         self.Set(self.resetMn, self.resetSec)
 
     def GetDisplay(self):
         """
         Returns a dict of int mn, int sec, string 'mn:sec'
-        """        
-        if self.mn < 10:
-            strMn = '0' + str(self.mn)
-        else:
-            strMn = str(self.mn)
-        
-        if self.sec < 10:
-           strSec = '0' + str(self.sec)
-        
-        else:
-           strSec = str(self.sec)
-
-        disp = (strMn + ':' + strSec)        
-        timerVals = {'mn':self.mn, 'sec':self.sec, 'display':disp}
-        
-        return timerVals
-
-    def GetStatus(self): # rename this method IsRunning !!!
-        """ 
-        Returns the current run status of the timer.
         """
+        display = '{:02d}:{:02d}'.format(self.mn, self.sec)
+
+        return display
+    # rename IsRunning() !!!
+    def GetStatus(self):
+        """ Returns the current run status of the timer. """
         return self.status
 
-#-------------------Beer XML methods---------------------------------
+###################################################################
 
     def GetXML(self, t):
         """
@@ -103,26 +74,24 @@ class Timer(object):
         try:
             # get the recipe element of the xml tree
             self.recipe = t.getroot()[0]
-            
             # the hops element
             self.hops = self.recipe[9]
             # the boil element
             self.boil = self.recipe[7].text
             # the brew type all grain or extract
             self.brewtype = self.recipe[2].text
-            
             # the mash steps
             mash = self.recipe.find('MASH')
             steps = mash.find('MASH_STEPS')
             self.mashsteps = []
-            
             for step in steps.findall('MASH_STEP'):
+
                 name = step.find('NAME').text
                 time = int(float(step.find('STEP_TIME').text))
-                
+
                 tempsplit = step.find('DISPLAY_STEP_TEMP').text.split()
                 temp = (int(float(tempsplit[0])))
-                
+
                 elements = (name, time, temp)
                 self.mashsteps.append(elements)
 
@@ -221,7 +190,7 @@ class Timer(object):
 if __name__ == '__main__':
 
     timer = Timer()
-    timer.Set(60)
+    timer.Set(8, 3)
     tree = ET.parse('C:/Users/Todd/Desktop/brewsys/recipes/Furious.xml')
     timer.GetXML(tree)
     hops = timer.GetHops()
@@ -232,5 +201,4 @@ if __name__ == '__main__':
     print fw
     steps = timer.GetAllSteps()
     print steps
-
-### End of File ###
+    print timer.GetDisplay()['display']
