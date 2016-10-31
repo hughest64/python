@@ -83,6 +83,7 @@ class Timer(object):
             # the mash steps
             mash = self.recipe.find('MASH')
             steps = mash.find('MASH_STEPS')
+            
             self.mashsteps = []
             for step in steps.findall('MASH_STEP'):
 
@@ -91,7 +92,11 @@ class Timer(object):
 
                 tempsplit = step.find('DISPLAY_STEP_TEMP').text.split()
                 temp = (int(float(tempsplit[0])))
-
+                
+                # alternative:
+                tempsplit = step.find('DISPLAY_STEP_TEMP').text.split('.')
+                temp = (int(tempsplit[0]))
+               
                 elements = (name, time, temp)
                 self.mashsteps.append(elements)
 
