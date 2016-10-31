@@ -94,8 +94,8 @@ class Timer(object):
                 temp = (int(float(tempsplit[0])))
                 
                 # alternative:
-                tempsplit = step.find('DISPLAY_STEP_TEMP').text.split('.')
-                temp = (int(tempsplit[0]))
+                #tempsplit = step.find('DISPLAY_STEP_TEMP').text.split('.')
+                #temp = (int(tempsplit[0]))
                
                 elements = (name, time, temp)
                 self.mashsteps.append(elements)
