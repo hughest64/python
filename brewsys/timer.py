@@ -2,7 +2,7 @@ import time
 import xml.etree.ElementTree as ET
 """
 TODO:
-- mash subclass for parsing beer.xml file
+- Lots!
 """
 
 class Timer(object):
@@ -19,23 +19,34 @@ class Timer(object):
         self.brewtype = ''
         self.mashsteps = []
 
-    # should there be an assert to force setting with an int? !!!
     def Set(self, mn=0, sec=0):
         """ Setting the timer. """
+        # we make sure to only set the timer with integers
+        assert type(mn) == int and type(sec) == int,\
+               'Set() must be called with type int!'
+
         self.mn = mn
         self.sec = sec
 
         self.resetMn = mn
         self.resetSec = sec
-
+    # can this be done diffently?
     def Run(self):
         """ The actual count down. """
+        # working in a possible alternative to the if/else technique
+        T = 2
+        mn = range(T, -1, -1) # T == self.mn
+        sec = range(60, -1, -1)
+        both = (mn, sec)
+
+
         if self.sec == 0:
             self.mn -= 1
             self.sec = 59
 
         else:
             self.sec -= 1
+
 
     def Start(self):
         """ A flag for starting the timer. """
@@ -80,23 +91,21 @@ class Timer(object):
             self.boil = self.recipe[7].text
             # the brew type all grain or extract
             self.brewtype = self.recipe[2].text
+
             # the mash steps
             mash = self.recipe.find('MASH')
             steps = mash.find('MASH_STEPS')
-            
             self.mashsteps = []
             for step in steps.findall('MASH_STEP'):
 
                 name = step.find('NAME').text
                 time = int(float(step.find('STEP_TIME').text))
 
+                #step.find('STEP_TIME').text[:2]
+
                 tempsplit = step.find('DISPLAY_STEP_TEMP').text.split()
                 temp = (int(float(tempsplit[0])))
-                
-                # alternative:
-                #tempsplit = step.find('DISPLAY_STEP_TEMP').text.split('.')
-                #temp = (int(tempsplit[0]))
-               
+
                 elements = (name, time, temp)
                 self.mashsteps.append(elements)
 
@@ -138,7 +147,7 @@ class Timer(object):
                     l = (n, a, t, use)
 
                     if use == 'First Wort':
-                        self.first_wort.append((n, a, 'FW', use))
+                        self.first_wort.append((n, a, 'FWH', use))
                     # add them to a dictionary
                     elif t not in self.boil_hops.keys():
                         # add to to a dictionary inside a list
@@ -195,7 +204,7 @@ class Timer(object):
 if __name__ == '__main__':
 
     timer = Timer()
-    timer.Set(8, 3)
+    timer.Set('a')
     tree = ET.parse('C:/Users/Todd/Desktop/brewsys/recipes/Furious.xml')
     timer.GetXML(tree)
     hops = timer.GetHops()
