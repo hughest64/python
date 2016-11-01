@@ -271,7 +271,7 @@ changes to timer:
 
 - make all xml methods a separate class
 - move fpath stuff to timer module? (this could create problems with instances in the World class & Recipe class)
-- change GetXML method to crate a binding to the root only.
+- change GetXML method to access the tree(move from World class) and create a binding for the root only.
 - separate methods for 
   - GetBoilTime
   - GetBrewType
