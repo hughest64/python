@@ -2,7 +2,9 @@ import time
 import xml.etree.ElementTree as ET
 """
 TODO:
-- Lots!
+- Think about error handling of Get methods
+- Rename some methods as noted
+- Add methods for temp control as necessary
 """
 
 class Timer(object):
@@ -17,7 +19,7 @@ class Timer(object):
         self.addition = False
 
         self.brewtype = ''
-        self.mashsteps = []
+        self.mashsteps = [] # should mn and sec be args for this?
 
     def Set(self, mn=0, sec=0):
         """ Setting the timer. """
@@ -30,15 +32,9 @@ class Timer(object):
 
         self.resetMn = mn
         self.resetSec = sec
-    # can this be done diffently?
+
     def Run(self):
         """ The actual count down. """
-        # working in a possible alternative to the if/else technique
-        T = 2
-        mn = range(T, -1, -1) # T == self.mn
-        sec = range(60, -1, -1)
-        both = (mn, sec)
-
 
         if self.sec == 0:
             self.mn -= 1
@@ -46,7 +42,6 @@ class Timer(object):
 
         else:
             self.sec -= 1
-
 
     def Start(self):
         """ A flag for starting the timer. """
@@ -72,147 +67,122 @@ class Timer(object):
         """ Returns the current run status of the timer. """
         return self.status
 
-###################################################################
+#----------------------------------------------
 
-    def GetXML(self, t):
-        """
-        Accesses the the desired hop and boil elements
-        of a beer.xml file
-        TODO:
-        add location of brew type (all grain, extract, etc.)
-        """
-        # if we have a beer.xml file with wich to work
-        try:
-            # get the recipe element of the xml tree
-            self.recipe = t.getroot()[0]
-            # the hops element
-            self.hops = self.recipe[9]
-            # the boil element
-            self.boil = self.recipe[7].text
-            # the brew type all grain or extract
-            self.brewtype = self.recipe[2].text
+    def SetXML(self, t):
+        # future needed elements can easily be added in here
+        tree = ET.parse(t)
+        self.recipe = tree.getroot()[0]
+        # change this to .fine method!!!
+        self.hops = self.recipe[9]              #list of hop additions
+        mash = self.recipe.find('MASH')         #mash tag
+        self.steps = mash.find('MASH_STEPS')    #list of mash steps
 
-            # the mash steps
-            mash = self.recipe.find('MASH')
-            steps = mash.find('MASH_STEPS')
-            self.mashsteps = []
-            for step in steps.findall('MASH_STEP'):
+        self.boil = self.recipe[7].text         #boil time
+        self.brewtype = self.recipe[2].text     #brew type
 
-                name = step.find('NAME').text
-                time = int(float(step.find('STEP_TIME').text))
+        self.SetMashSteps()
+        self.SetHops()
 
-                #step.find('STEP_TIME').text[:2]
+    def SetMashSteps(self):
+        '''
+        other elements to consider:
+        TYPE, INFUSE_AMOUNT, DECOCTION_AMOUNT, INFUSE_TEMP
 
-                tempsplit = step.find('DISPLAY_STEP_TEMP').text.split()
-                temp = (int(float(tempsplit[0])))
+        type = 'string TYPE'                        #use to determine if it's a temp, decoct, or infusion step
+        strikevol = 'int or float INFUSE_AMOUNT'    #really only need this from first step if temp mashing
+        striketemp = 'int INFUSE_TEMP'              #really only need this from first step if temp mashing
+        '''
+        self.mashsteps = []
+        # should this have a try/except?!!!
+        for step in self.steps:
+            name = step.find('NAME').text
+            time = int(float(step.find('STEP_TIME').text))
 
-                elements = (name, time, temp)
-                self.mashsteps.append(elements)
+            tempsplit = step.find('DISPLAY_STEP_TEMP').text.split('.')
+            temp = int(tempsplit[0])
 
-        # otherwise return empty values
-        except:
-            self.hops = []
-            self.boil = 0
-            self.brewtype = ''
-            self.mashsteps = []
+            elements = (name, time, temp)
+            self.mashsteps.append(elements)
 
-    def GetBrewType(self):
-        return self.brewtype
-
-    def GetBoilTime(self):
-        """ Returns the boil time as tuple of (int mn int sec) """
-        boil = int(float(self.boil))
-        return boil
-
-    def GetHops(self):
-        """
-        returns a dict with time(int) as the key and a
-        tuple of (name(string), amount(int), time(int))
-        as the value
-        """
+    def SetHops(self):
         self.boil_hops = {}
         self.first_wort = []
-        # if there is a beer.xml file which can be parsed
-        try:
-            for h in self.hops:
-                use = h[5].text
-                if use != 'Dry Hop':
-                    # time of addition
-                    t = int(float(h[6].text))
-                    # amonunt of addition converted to ounces
-                    a = round(float(h[4].text) * 35.274, 2)
-                    # name of the hop
-                    n =  h[0].text
-                    # a tuple of the collected information
-                    l = (n, a, t, use)
+        self.dry_hop = [] # may not use this!!!
 
-                    if use == 'First Wort':
-                        self.first_wort.append((n, a, 'FWH', use))
-                    # add them to a dictionary
-                    elif t not in self.boil_hops.keys():
-                        # add to to a dictionary inside a list
-                        self.boil_hops[t] = [l]
-                    else:
-                        # otherwise append it to the list
-                        self.boil_hops[t].append(l)
+        #try:
+        for hop in self.hops:
+            name =  hop[0].text
+            amt = round(float(hop[4].text) * 35.274, 2)
+            time = int(float(hop[6].text))
+            use = hop[5].text
+            l = (name, amt, time, use)
 
-            return self.boil_hops
-        # return the empty dict if there is no beer.xml file
-        except:
-            return self.boil_hops
+            if use == 'First Wort':
+                self.first_wort.append(l)
 
-    def GetFirstWort(self):
-        return self.first_wort
+            elif use == 'Dry Hop':
+                self.dry_hop.append(l)
+
+            elif time not in self.boil_hops:
+                self.boil_hops[time] = [l]
+
+            else:
+                self.boil_hops[time].append(l)
+
+        #except:
+            #print '<what should this do?>\
+                    # \nthere was an error'
+
+    def GetMashSteps(self):
+        return self.mashsteps
+
+    def GetBoilHops(self):
+        return self.boil_hops
 
     def GetAddition(self):
-        """
-        returns a single hop additon as
-        tuple of (name, amt, time)?
-        """
-
-        hops = self.GetHops() # our dict of hops
-        hop = hops[self.mn]   # values from the current time
-
+        hop = self.boil_hops[self.mn]
         return hop
 
     def AddHop(self):
-        """
-        Returns True if the current self.mn value
-        is a key in dict from GetHops()
-        """
-        if self.mn in self.GetHops() and self.sec == 0:
+        if self.mn in self.boil_hops.keys():
             self.addition = True
+
         else:
             self.addition = False
 
         return self.addition
 
-    def GetMashSteps(self):
-        return self.mashsteps
-#---------------------------------------------------------------------
+    def GetFirstWort(self):
+        return self.first_wort
+
+    def GetDryHop(self):
+        return self.dry_hop
 
     def GetAllSteps(self):
-        self.GetHops()
         all_steps = {'Mash':self.mashsteps, 'Firstwort':self.first_wort,
-                     'Boil':self.boil_hops}
-
+                     'Boil':self.boil_hops, 'Dryhop':self.dry_hop}
         return all_steps
 
+    def GetRecipeName(self):
+        name = self.recipe[0].text
+        return name
+
+    def GetBoilTime(self): # change this to .find method!!!
+        boil = int(float(self.recipe[7].text))
+        return boil
+
+    def GetBrewType(self): # change this to .fine method!!!
+        brew = self.recipe[2].text
+        return brew
 
 
 # tests
 if __name__ == '__main__':
-
+    fpath = 'C:/Users/Todd/Desktop/brewsys/recipes/Furious.xml'
     timer = Timer()
-    timer.Set('a')
-    tree = ET.parse('C:/Users/Todd/Desktop/brewsys/recipes/Furious.xml')
-    timer.GetXML(tree)
-    hops = timer.GetHops()
-    print hops
-    hop = timer.GetAddition()
-    print hop
-    fw = timer.GetFirstWort()
-    print fw
-    steps = timer.GetAllSteps()
-    print steps
-    print timer.GetDisplay()['display']
+    timer.SetXML(fpath)
+    mash = timer.GetMashSteps()
+    everything = timer.GetAllSteps()
+
+    print everything
