@@ -6,10 +6,10 @@ from settimer import *
 
 """
 TODO:
-finish ParseErrDlg() method
-helper method for setting step labels
-reorder methods
-clean up LoadSteps - rename - and HopDlg parsing if possible
+- finish ParseErrDlg() method
+- helper method for setting step labels
+- clean up LoadSteps - rename - and HopDlg parsing if possible
+- doc strings!
 """
 
 app = wx.App()
@@ -147,8 +147,59 @@ class World(wx.Frame):
         # do I need this? !!!
         panel.SetSizer(vbox)
 
-#################################################################
+    def SetTime(self, e):
+        """ Sets the timer with tuple from SetTimer class """
+        self.StopTimer()
+        vals = self.setTimer.GetTime()
+        self.TIMER.Set(vals[0], vals[1])
+        self.UpdateTimer()
+
+    def OnTimerToggle(self, e):
+
+        if self.vals != '00:00' and not self.TIMER.GetStatus():
+            self.StartTimer()
+
+        else:
+            self.StopTimer()
+
+    def StartTimer(self):
+        """ Start the timer."""
+        self.stbtn.SetLabel('Pause')
+        self.wx_timer.Start(DELAY)
+        self.TIMER.Start()
+        if self.step_count == 99:
+            self.ShowHopDlg()
+
+    def StopTimer(self):
+        """ Stop the timer."""
+        self.stbtn.SetLabel('Start')
+        self.TIMER.Stop()
+        self.wx_timer.Stop()
+
+    def OnTimerRun(self, e):
+        """ Decrement and redraw the timer """
+        # stop once we are at '00:00'
+        if self.vals == '00:00':
+            try:
+                self.CallSteps()
+            except:
+                #pass
+                self.StopTimer()
+
+        else:
+            # decrement the timer
+            self.TIMER.Run()
+            # redraw the display
+            self.UpdateTimer()
+            # show a hop dialog if necessary
+            if self.step_count == 99:
+                self.ShowHopDlg()
     # update and rename !!!
+    def UpdateTimer(self):
+        """ Reset the display. """
+        self.vals = self.TIMER.GetDisplay()
+        self.time_text.SetLabel(self.vals)
+
     def LoadRecipe(self, e):
         """ load a timer based upon the brewing style """
         # rename OnRecipSelect !!!
@@ -171,6 +222,28 @@ class World(wx.Frame):
         #except:
             # may need to raise parse error dialog if fpath is bad!!!
             #self.RecipeErrDlg()
+
+    def LoadSteps(self):
+        self.mashlist.Clear()
+        self.boillist.Clear()
+
+        for count, info in enumerate(self.mash_steps):
+            step = '{}: {} {} degrees'.format((count+1), info[0], info[2])
+            self.mashlist.Append(step)
+
+        for one in self.first_wort:
+            addition = '{2}, {1} oz {0}'.format(one[0], one[1], one[2])
+            self.boillist.Append(addition)
+
+        # hop is a key from the sorted dict
+        hopskeys = sorted(self.boil_steps.keys(), reverse=True)
+
+        for hop in hopskeys:
+            # for each value in the dict
+            for info in self.boil_steps[hop]:
+                #self.hopslist.append(info)
+                addition = '{2} min, {1} oz {0}'.format(info[0], info[1], info[2])
+                self.boillist.Append(addition)
     # add helper function!!!
     def CallSteps(self):
         boil_time = self.TIMER.GetBoilTime()
@@ -214,27 +287,6 @@ class World(wx.Frame):
             self.step_text2.SetLabel(label2)
             self.grid.Layout()
 
-    def LoadSteps(self):
-        self.mashlist.Clear()
-        self.boillist.Clear()
-
-        for count, info in enumerate(self.mash_steps):
-            step = '{}: {} {} degrees'.format((count+1), info[0], info[2])
-            self.mashlist.Append(step)
-
-        for one in self.first_wort:
-            addition = '{2}, {1} oz {0}'.format(one[0], one[1], one[2])
-            self.boillist.Append(addition)
-
-        # hop is a key from the sorted dict
-        hopskeys = sorted(self.boil_steps.keys(), reverse=True)
-        for hop in hopskeys:
-            # for each value in the dict
-            for info in self.boil_steps[hop]:
-                #self.hopslist.append(info)
-                addition = '{2} min, {1} oz {0}'.format(info[0], info[1], info[2])
-                self.boillist.Append(addition)
-
     def CallMash(self, e):
         try:
             self.step_count = 0
@@ -253,76 +305,6 @@ class World(wx.Frame):
 
         except:
             self.RecipeErrDlg()
-    # finish this !!!
-    def ParseErrDlg(self):
-        """ This will need a pop up dialog!!! """
-        print "The file path is incorrect"
-
-    def RecipeErrDlg(self):
-        msg = "Please select a recipe first!"
-        dlg = wx.MessageDialog(self, msg, "No Recipe Selected",
-                               wx.OK|wx.ICON_EXCLAMATION)
-        dlg.ShowModal()
-        dlg.Destroy()
-
-################################################################
-
-    def OnTimerToggle(self, e):
-
-        if self.vals != '00:00' and not self.TIMER.GetStatus():
-            self.StartTimer()
-
-        else:
-            self.StopTimer()
-
-    def StartTimer(self):
-        """ Start the timer."""
-        self.stbtn.SetLabel('Pause')
-        self.wx_timer.Start(DELAY)
-        self.TIMER.Start()
-        if self.step_count == 99:
-            self.ShowHopDlg()
-
-    def StopTimer(self):
-        """ Stop the timer."""
-        self.stbtn.SetLabel('Start')
-        self.TIMER.Stop()
-        self.wx_timer.Stop()
-
-    def OnTimerRun(self, e):
-        """ Decrement and redraw the timer """
-        # stop once we are at '00:00'
-        if self.vals == '00:00':
-            try:
-                self.CallSteps()
-            except:
-                #pass
-                self.StopTimer()
-
-        else:
-            # decrement the timer
-            self.TIMER.Run()
-            # redraw the display
-            self.UpdateTimer()
-            # show a hop dialog if necessary
-            if self.step_count == 99:
-                self.ShowHopDlg()
-
-############################################################################
-
-    def SetTime(self, e):
-        """ Sets the timer with tuple from SetTimer class """
-        self.StopTimer()
-        vals = self.setTimer.GetTime()
-        self.TIMER.Set(vals[0], vals[1])
-        self.UpdateTimer()
-
-###########################################################################
-
-    def UpdateTimer(self):
-        """ Reset the display. """
-        self.vals = self.TIMER.GetDisplay()
-        self.time_text.SetLabel(self.vals)
 
     def OnReset(self, e):
         """ Reset the timer """
@@ -336,24 +318,17 @@ class World(wx.Frame):
 
         except:
             pass
+    # finish this !!!
+    def ParseErrDlg(self):
+        """ This will need a pop up dialog!!! """
+        print "The file path is incorrect"
 
-    def OnClose(self, e):
-        """ close the app """
-        self.recipe.Destroy()
-        self.setTimer.Destroy()
-        self.Destroy()
-
-    def CloseDlg(self, e):
-        msg = "Are you sure you want to stop brewing?"
-        dlg = wx.MessageDialog(self, msg, "Confim Close",
-                               wx.OK | wx.CANCEL| wx.ICON_QUESTION)
-
-        result = dlg.ShowModal()
-        if result == wx.ID_OK:
-            self.OnClose(None)
+    def RecipeErrDlg(self):
+            msg = "Please select a recipe first!"
+            dlg = wx.MessageDialog(self, msg, "No Recipe Selected",
+            wx.OK|wx.ICON_EXCLAMATION)
+            dlg.ShowModal()
             dlg.Destroy()
-
-#################################################################
     # can this be more efficient? !!!
     def HopDlg(self, msg):
         """ Dialog box for a reminder to add some hops """
@@ -373,6 +348,21 @@ class World(wx.Frame):
             hop = self.TIMER.GetAddition()
             self.HopDlg(hop)
 
+    def OnClose(self, e):
+        """ close the app """
+        self.recipe.Destroy()
+        self.setTimer.Destroy()
+        self.Destroy()
+
+    def CloseDlg(self, e):
+            msg = "Are you sure you want to stop brewing?"
+            dlg = wx.MessageDialog(self, msg, "Confim Close",
+            wx.OK | wx.CANCEL| wx.ICON_QUESTION)
+
+            result = dlg.ShowModal()
+            if result == wx.ID_OK:
+                self.OnClose(None)
+            dlg.Destroy()
 
 if __name__ == '__main__':
     World(None)
