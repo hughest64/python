@@ -314,8 +314,8 @@ class World(wx.Frame):
 
     def OnNextStep(self, e):
         try:
-            self.CallSteps()
-
+            if self.step_count != 99:
+                self.CallSteps()
         except:
             pass
     # finish this !!!
