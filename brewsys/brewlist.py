@@ -8,6 +8,7 @@ add buttons for Open and Close
 argparse to set FPATH from the command line!!!
 """
 # variable for file path to .xml directory
+# FPATH  = os.getcwd() + '/recipes'
 FPATH = "C:/Users/Todd/Desktop/brewsys/recipes/"
 
 # a class for the list box population the contents of recipes
@@ -33,11 +34,14 @@ class Recipe(wx.Frame):
 
     def GetRecipes(self):
         d = os.listdir(FPATH)
-
+        
         for r in d:
+            #self.ext = R[-1] # !!!
             R = r.split('.')
+                        
+            # if self.ext == 'xml':
             if R[-1] == 'xml':
-                self.recipes.append(R[0])
+                self.recipes.append(R[0]) # (R[:-1]) # !!!
 
     def OnShow(self, e):
         self.Centre()
@@ -46,6 +50,7 @@ class Recipe(wx.Frame):
     def OnSelect(self, e):
         sel = self.listbox.GetSelection()
         self.text = self.listbox.GetString(sel)
+        #self.recipe = '{}{}.{}'.format(FPATH, self.text, self.ext) #!!!
         self.recipe = FPATH + self.text + '.xml'
         e.Skip()
         self.Hide()
