@@ -36,12 +36,13 @@ class Recipe(wx.Frame):
         d = os.listdir(FPATH)
         
         for r in d:
-            #self.ext = R[-1] # !!!
             R = r.split('.')
+            #self.ext = R[-1] # !!!
+            #self.path = R[:-1]
                         
             # if self.ext == 'xml': # or 'bsmx'? if that file type works the same
             if R[-1] == 'xml':
-                self.recipes.append(R[0]) # (R[:-1]) # !!!
+                self.recipes.append(R[0]) # self.path # !!!
 
     def OnShow(self, e):
         self.Centre()
