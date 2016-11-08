@@ -8,7 +8,7 @@ add buttons for Open and Close
 argparse to set FPATH from the command line!!!
 """
 # variable for file path to .xml directory
-# FPATH  = os.getcwd() + '/recipes'
+# FPATH  = os.getcwd() + '/recipes' # !!!
 FPATH = "C:/Users/Todd/Desktop/brewsys/recipes/"
 
 # a class for the list box population the contents of recipes
