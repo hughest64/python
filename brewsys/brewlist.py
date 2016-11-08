@@ -39,7 +39,7 @@ class Recipe(wx.Frame):
             #self.ext = R[-1] # !!!
             R = r.split('.')
                         
-            # if self.ext == 'xml':
+            # if self.ext == 'xml': # or 'bsmx'? if that file type works the same
             if R[-1] == 'xml':
                 self.recipes.append(R[0]) # (R[:-1]) # !!!
 
