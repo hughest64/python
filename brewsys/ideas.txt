@@ -36,4 +36,4 @@ mash temp module: steps on brew day
 5. if the mash temp is more than +1 above mash 
    - stop everything until 3. or 4. is reached
 6. raise temp to the next step - 
-   - foloow procedure for 4.
+   - follow procedure for 4.
