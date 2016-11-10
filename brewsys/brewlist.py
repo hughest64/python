@@ -1,60 +1,87 @@
 import wx
 import os
+import shutil
 
 """
 TODO:
-add buttons for Open and Close
-(open to do the same thing as double click)
-argparse to set FPATH from the command line!!!
+- styling
+- add other file types to GetRecipes? (.bsm, and/or .bsmx)
+- add class for file browsing
+  - this will do one of the following:
+    1. allow you to select a recipe from anywhere - or
+    2. add files to the recipe directory
 """
 # variable for file path to .xml directory
-# FPATH  = os.getcwd() + '/recipes' # !!!
-FPATH = "C:/Users/Todd/Desktop/brewsys/recipes/"
+FPATH = os.getcwd() +'\\recipes\\'
+
+WILDCARD = ("BeerXML files (*.xml)|*.xml|"
+            "All files (*.*)|*.*")
 
 # a class for the list box population the contents of recipes
 class Recipe(wx.Frame):
     def __init__(self, parent):
-        wx.Frame.__init__(self, parent,  size=(350, 220))
+        wx.Frame.__init__(self, parent,  size=(250, 220))
+
+        self.InitUI()
+
+    def InitUI(self):
         self.recipe = ''
         self.recipes = []
         self.GetRecipes()
 
         panel = wx.Panel(self)
-        hbox = wx.BoxSizer(wx.HORIZONTAL)
+        vbox = wx.BoxSizer(wx.VERTICAL)
+        hbox1 = wx.BoxSizer(wx.HORIZONTAL)
+        hbox2 = wx.BoxSizer(wx.HORIZONTAL)
 
+        self.addbtn = wx.Button(panel, label='Add')
+        self.okbtn = wx.Button(panel, label='OK')
+        self.cnclbtn = wx.Button(panel, label="Cancel")
         self.listbox = wx.ListBox(panel, choices=self.recipes)
-        hbox.Add(self.listbox, 1, wx.EXPAND | wx.ALL, 20)
+
+        hbox1.Add(self.listbox, proportion=1, flag=wx.EXPAND | wx.ALL, border=20)
+
+        hbox2.Add(self.addbtn, flag=wx.RIGHT, border=10)
+        hbox2.Add(self.okbtn, flag=wx.RIGHT, border=10)
+        hbox2.Add(self.cnclbtn, flag=wx.RIGHT, border=20)
+
+        vbox.Add(hbox1, flag=wx.EXPAND|wx.ALL)
+        vbox.Add(hbox2, flag=wx.ALIGN_RIGHT)
+
+        panel.SetSizer(vbox)
 
         self.Bind(wx.EVT_LISTBOX_DCLICK, self.OnSelect)
-        self.Bind(wx.EVT_CLOSE, self.OnClose)
+        self.okbtn.Bind(wx.EVT_BUTTON, self.OnSelect)
 
-        panel.SetSizer(hbox)
+        #self.addbtn.Bind(wx.EVT_BUTTON, self.OnAddFile)
+
+        self.Bind(wx.EVT_CLOSE, self.OnClose)
+        self.cnclbtn.Bind(wx.EVT_BUTTON, self.OnClose)
 
         self.SetTitle('Recipe List')
 
     def GetRecipes(self):
-        d = os.listdir(FPATH)
-        
-        for r in d:
-            R = r.split('.')
-            #self.ext = R[-1] # !!!
-            #self.path = R[:-1]
-                        
-            # if self.ext == 'xml': # or 'bsmx'? if that file type works the same
-            if R[-1] == 'xml':
-                self.recipes.append(R[0]) # self.path # !!!
+        recipes = os.listdir(FPATH)
+
+        # if self.ext == 'xml': # or 'bsmx'?
+        # if that file type works the same !!!
+        for recipe in recipes:
+            print recipe
+            self.ext = recipe.split('.')[-1]
+            name = '.'.join(recipe.split('.')[:-1])
+            if self.ext == 'xml':
+                self.recipes.append(name)
 
     def OnShow(self, e):
         self.Centre()
         self.Show()
 
     def OnSelect(self, e):
+
         sel = self.listbox.GetSelection()
         self.text = self.listbox.GetString(sel)
-        #self.recipe = '{}{}.{}'.format(FPATH, self.text, self.ext) #!!!
-        self.recipe = FPATH + self.text + '.xml'
+        self.recipe = FPATH + self.text + '.' + self.ext
         e.Skip()
-        self.Hide()
 
     def GetRecipe(self):
         return self.recipe
@@ -62,10 +89,27 @@ class Recipe(wx.Frame):
     def OnClose(self, e):
         self.Hide()
 
+    def OnAddFile(self, e):
+        """
+        Add files to the recipe diretory for use in the app
+        """
+        dlg = wx.FileDialog(
+            self, message="Select a recipe ...",
+            defaultDir=FPATH,
+            defaultFile="", wildcard=WILDCARD, style=wx.OPEN
+            )
+        if dlg.ShowModal() == wx.ID_OK:
+            path = dlg.GetPath()
+            shutil.copy2(path, FPATH)
+            self.GetRecipes()
+
+        dlg.Destroy()
 
 
 if __name__ == '__main__':
+
     app = wx.App()
     R = Recipe(None)
+    R.Centre()
     R.Show()
     app.MainLoop()
