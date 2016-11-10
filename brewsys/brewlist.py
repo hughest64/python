@@ -101,7 +101,10 @@ class Recipe(wx.Frame):
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             shutil.copy2(path, FPATH)
-            self.GetRecipes()
+            # maybe can do this:
+            # self.listbox = wx.ListBox(panel, choices=self.recipes) # then:
+            self.GetRecipes() # -or maybe-
+            # self.listbox.Append(path) # but this is the entire file path!
 
         dlg.Destroy()
 
