@@ -23,4 +23,17 @@ import lines
 - timer class module
 - other separate modules
 	
-#------------------------------------------------------------
+#----------------------------------------------------------
+mash temp module: steps on brew day
+1. heat strike water to desired temp
+2. heat sparge water to x degrees over mash temp
+3. if the actual temp is +/- 1 degree fomr mash temp - 
+   - maintain sparge water time within +/- x degrees over mash temp
+4. if the actual temp is more than 1 (2?) degree(s) below mash temp - 
+   - heat sparge water to x degrees over mash temp
+   - maintian that until actual temp is within x(1?) degrees of desired temp
+   - go back to step 3.
+5. if the mash temp is more than +1 above mash 
+   - stop everything until 3. or 4. is reached
+6. raise temp to the next step - 
+   - foloow procedure for 4.
