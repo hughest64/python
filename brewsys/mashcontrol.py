@@ -55,13 +55,13 @@ class MashController(object):
 		else:
 			self.Maintain()
 			
-        def SpargeEvent(self, e):
-            """
-            This will need an event to check self.act_sp_temp
-            """
-            # open solenoid
-            # fire burner
-            # heat water to self.sptemp and maintain +/- 2 degrees
-            # stop when self.acttemp is at a certina point? -
-            # - enter TooHot() or Maintain()
-            pass
+	def SpargeEvent(self, e):
+		"""
+		This will need an event to check self.act_sp_temp
+		"""
+		# open solenoid
+		# fire burner
+		# heat water to self.sptemp and maintain +/- 2 degrees
+		# stop when self.acttemp is at a certina point? -
+		# - enter TooHot() or Maintain()
+		pass
