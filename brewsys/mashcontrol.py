@@ -1,15 +1,26 @@
-class MashController(object):
-    def __init__(self):
+import wx
 
-        self.sttemp      = 0 # strike temp
-        self.atemp       = 0 # actual temp(from sensor)
-        self.mtemp       = 0 # desired temp(from xml)
-        self.act_sp_temp = 0 # actual sparge water temp(from sensor)
-        self.diff        = 0 # amount above mash temp to set stemp
-        self.sptemp      = 0 # sparge water temp(mtemp + diff)
+class MashController(wx.Frame): # change to inerit vrom object for actual class
+    """
+    A class to control temperature inputs for a brewing system.
+    """
+    def __init__(self): 
+        # a Brew class instance representing temp events from an Arduino
+        brew = Brew()
+
+        self.sttemp      = 0         # strike temp
+        self.atemp       = brew.temp # actual temp(from sensor)
+        self.mtemp       = 0         # desired temp(from xml)
+        self.act_sp_temp = 0         # actual sparge water temp(from sensor)
+        self.diff        = 0         # amount above mash temp to set stemp
+        self.sptemp      = 0         # sparge water temp
         
-        self.sol    = False  # state of the solenoiod(False is closed state)
-        self.spark  = False  # state of sparker
+        self.heat        = False     # a flag to control whether or not to fire a burner
+        self.sol         = False     # state of the solenoiod(False is closed state)
+        self.spark       = False     # state of sparker
+        
+        # a binding to get the new value
+        self.bind(EVT_BUTTON, self.TempCheck)
 
     def HeatStrike(self):
         # open solenoiod
@@ -23,41 +34,37 @@ class MashController(object):
         Used when self.atemp is more that 1 degree lower
         than self.mtemp or to go to the next mash step
         """
-        # self.diff = 20
-        # set self.sptemp
-        # open solenoid   # maybe this goes in self.SpargeEvent(None)?
-        # fire burner     # maybe this goes in self.SpargeEvent(None)?
-        # run/maintain until self.atemp is within 1 degree of self.mtemp
-        # event loop to maintain?!!! self.SpargeEvent()
-        pass
+        print "Let's get it fired up!"
+        self.diff = 20
+        self.heat = True
+        # if this is triggered periodically, this may not need to be called
+        self.SpargeEvent(None)
 
     def TooHot(self):
-        # close solenoid
-        # do nothing until conditions for Maintain() are met
-        pass
+        print "the temp is too damn high!"
+        # should this change self.diff? If so,
+        # it can probably be deprecated
+        self.heat = False
 
     def Maintain(self):
-        # self.diff = 10
-        # set self.sptemp()
-        # open solenoid # maybe this goes in self.SpargeEvent()?
-        # fire burner   # maybe this goes in self.SpargeEvent()?
-        # close solenoid when self.sttemp is reached,
-        # event loop to maintain?!!! self.SpargeEvent()
-        pass
+        self.diff = 10
+        self.heat = False
+        print "We cool"
 
     def TempCheck(self, e):
         """
         This will need an event to check self.atemp periodically.
         """
-        if self.atemp == '<low condition>':
+        self.atemp = brew.GetTemp()
+        
+        if self.atemp == '<low condition>': # and timer display != '00:00'
             self.HeatMash()
 
-        elif self.atemp == '<high condition>':
+        elif self.atemp == '<high condition>': # and timer display != '00:00'
             self.TooHot()
 
         else:
             self.Maintain()
-        
 
     def SpargeEvent(self, e):
         """
@@ -65,19 +72,51 @@ class MashController(object):
         """
         # heat water to self.sptemp and maintain +/- 2 degrees
         
-        # if we are -2 degrees below desired temp
-        if self.act_sp_temp < self.mtemp + self.diff - 2:
-          # this would halt heating at a certain point to let the mash temp naturally come up
-          # and self.atemp < self.mtemp - x degrees? 
-          
-            # open solenoid
-            self.sol = True
-            # fire burner, this will need to be timed to stop after x seconds!!!
-            self.spark = True
+        if self.heat:
+            # if we are -2 degrees below desired temp
+            #and self.atemp < self.mtemp - x degrees?
+            if self.act_sp_temp < self.mtemp + self.diff - 2:
+                # open solenoid
+                self.sol = True
+                # fire burner, this will need to be timed to stop after x seconds!!!
+                self.spark = True
+                
+            elif self.act_sp_temp > self.mtemp + self.diff + 2:
+                # make sure the soloenoid is closed and we aren't sparking
+                self.sol = False
+                self.spark = False
+                
+            else:
+                self.heat = False
             
-        elif self.act_sp_temp == self.mtemp + self.diff + 2:
-            # make sure the soloenoid is closed and we aren't sparking
-            self.sol = False
-            self.spark = False
-    
-            # - enter TooHot() or Maintain()?
+#-----------------------------------------------------------------------------------          
+            
+class Brew(wx.Frame):
+    """ 
+    Test class to emulate passing temp events to 
+    the MashController class. (Pretend it's an Arduino.)
+    """
+    def __init__(self, *args, **kwargs):
+        super(World, self).__init__(*args, **kwargs)
+        
+        self.temp = 0
+        
+        panel = wx.Panel(self)
+        
+        self.num = wx.wx.SpinCtrl(panel, size=(60, -1))
+        self.btn = wx.Button(panel, label='Save')
+        
+        self.btn.Bind(wx.EVENT_BUTTON, self.OnSave)
+        
+        self.SetSize((100, 100))
+        self.SetTitle('Brew Temps')
+        self.Centre()
+        self.Show()
+        
+        def OnSave(self, e):
+            self.temp = self.num.GetValue()
+            e.skip()
+            print self.temp
+            
+        def GetTemp(self):
+            return self.temp
