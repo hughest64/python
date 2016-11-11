@@ -1,12 +1,15 @@
 class MashController(object):
     def __init__(self):
 
-    self.sttemp      = 0 # strike temp
-    self.atemp       = 0 # actual temp(from sensor)
-    self.mtemp       = 0 # desired temp(from xml)
-    self.act_sp_temp = 0 # actual sparge water temp(from sensor)
-    self.diff        = 0 # amount above mash temp to set stemp
-    self.sptemp      = 0 # sparge water temp(mtemp + diff)
+        self.sttemp      = 0 # strike temp
+        self.atemp       = 0 # actual temp(from sensor)
+        self.mtemp       = 0 # desired temp(from xml)
+        self.act_sp_temp = 0 # actual sparge water temp(from sensor)
+        self.diff        = 0 # amount above mash temp to set stemp
+        self.sptemp      = 0 # sparge water temp(mtemp + diff)
+        
+        self.sol    = False  # state of the solenoiod(False is closed state)
+        self.spark  = False  # state of sparker
 
     def HeatStrike(self):
         # open solenoiod
@@ -18,7 +21,7 @@ class MashController(object):
     def HeatMash(self):
         """
         Used when self.atemp is more that 1 degree lower
-        than self.mtemp
+        than self.mtemp or to go to the next mash step
         """
         # self.diff = 20
         # set self.sptemp
@@ -46,22 +49,35 @@ class MashController(object):
         """
         This will need an event to check self.atemp periodically.
         """
-        if self.atemp '<low condition>':
-        self.HeatMash()
+        if self.atemp == '<low condition>':
+            self.HeatMash()
 
-        elif self.atemp '<high condition>':
-        self.TooHot()
+        elif self.atemp == '<high condition>':
+            self.TooHot()
 
         else:
-        self.Maintain()
+            self.Maintain()
+        
 
     def SpargeEvent(self, e):
         """
         This will need an event to check self.act_sp_temp
         """
-        # open solenoid
-        # fire burner
         # heat water to self.sptemp and maintain +/- 2 degrees
-        # stop when self.acttemp is at a certina point? -
-        # - enter TooHot() or Maintain()
-        pass
+        
+        # if we are -2 degrees below desired temp
+        if self.act_sp_temp < self.mtemp + self.diff - 2:
+          # this would halt heating at a certain point to let the mash temp naturally come up
+          # and self.atemp < self.mtemp - x degrees? 
+          
+            # open solenoid
+            self.sol = True
+            # fire burner, this will need to be timed to stop after x seconds!!!
+            self.spark = True
+            
+        elif self.act_sp_temp == self.mtemp + self.diff + 2:
+            # make sure the soloenoid is closed and we aren't sparking
+            self.sol = False
+            self.spark = False
+    
+            # - enter TooHot() or Maintain()?
