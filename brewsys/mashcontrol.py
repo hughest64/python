@@ -1,7 +1,8 @@
 import wx
 """
 things to think about:
-- do we want the burner cycle to run whent he timer is paused?
+- do we want the burner cycle to run when the timer is paused?
+  - probaly
 - overide method to run everything manually?
 - separate cycle(method) for timing the sparker?
   - shut everything off if not lit in x seconds
