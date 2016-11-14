@@ -1,4 +1,12 @@
 import wx
+"""
+things to think about:
+- do we want the burner cycle to run whent he timer is paused?
+- overide method to run everything manually?
+- separate cycle(method) for timing the sparker?
+  - shut everything off if not lit in x seconds
+"""
+
 
 class MashController(wx.Frame): # change to inerit vrom object for actual class
     """
