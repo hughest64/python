@@ -37,18 +37,17 @@ class MashController(wx.Frame): # change to inerit vrom object for actual class
         print "Let's get it fired up!"
         self.diff = 20
         self.heat = True
-        # if this is triggered periodically, this may not need to be called
+        # if SpargeEvent triggered periodically, it may not need to be called here
         self.SpargeEvent(None)
 
     def TooHot(self):
         print "the temp is too damn high!"
-        # should this change self.diff? If so,
-        # it can probably be deprecated
+        # This can probably be done directly in TempCheck()
         self.heat = False
 
     def Maintain(self):
         self.diff = 10
-        self.heat = False
+        self.heat = True
         print "We cool"
 
     def TempCheck(self, e):
@@ -57,14 +56,25 @@ class MashController(wx.Frame): # change to inerit vrom object for actual class
         """
         self.atemp = brew.GetTemp()
         
-        if self.atemp == '<low condition>': # and timer display != '00:00'
-            self.HeatMash()
+        if self.atemp == '<low condition>': # and timer display != '00:00'            
+            self.HeatMash() 
+            # -or-
+            #self.diff = 20
+            #self.heat = True
+            #print "Let's get it fired up!"
 
-        elif self.atemp == '<high condition>': # and timer display != '00:00'
+        elif self.atemp == '<high condition>': # and timer display != '00:00'            
             self.TooHot()
+            # -or-
+            #self.heat = False
+            #print "the temp is too damn high!"
 
-        else:
+        else:            
             self.Maintain()
+            # -or-
+            #self.diff = 10
+            #self.heat = True
+            #print "We cool"
 
     def SpargeEvent(self, e):
         """
@@ -86,8 +96,9 @@ class MashController(wx.Frame): # change to inerit vrom object for actual class
                 self.sol = False
                 self.spark = False
                 
-            else:
-                self.heat = False
+            #else:
+               # I don't thnk we want to do this
+               #self.heat = False
             
 #-----------------------------------------------------------------------------------          
             
