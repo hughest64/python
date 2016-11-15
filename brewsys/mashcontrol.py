@@ -9,17 +9,17 @@ things to think about:
 """
 
 
-class MashController(wx.Frame): # change to inerit vrom object for actual class
+class MashController(wx.Frame): # change to inerit from object for actual class!!!
     """
     A class to control temperature inputs for a brewing system.
     """
     def __init__(self): 
         # a Brew class instance representing temp events from an Arduino
-        brew = Brew()
+        self.brew = Brew(self)
+        self.atemp       = self.brew.temp # actual temp(from sensor)
 
-        self.sttemp      = 0         # strike temp
-        self.atemp       = brew.temp # actual temp(from sensor)
-        self.mtemp       = 0         # desired temp(from xml)
+        self.sttemp      = 0         # strike water temp        
+        self.mtemp       = 0         # desired mash temp(from xml)
         self.act_sp_temp = 0         # actual sparge water temp(from sensor)
         self.diff        = 0         # amount above mash temp to set stemp
         self.sptemp      = 0         # sparge water temp
