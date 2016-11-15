@@ -1,4 +1,5 @@
 import wx
+import time
 """
 things to think about:
 - do we want the burner cycle to run when the timer is paused?
@@ -29,6 +30,7 @@ class MashController(wx.Frame): # change to inerit from object for actual class!
         self.heat        = False     # a flag to control whether or not to fire a burner
         self.sol         = False     # state of the solenoiod(False is closed state)
         self.spark       = False     # state of sparker
+        self.is_lit      = False     # is the burner already lit?
         
         # a binding to get the new value
         self.Bind(wx.EVT_BUTTON, self.TempCheck)
@@ -91,12 +93,12 @@ class MashController(wx.Frame): # change to inerit from object for actual class!
         """
         This will need an event to check self.act_sp_temp
         """
-        # heat water to self.sptemp and maintain +/- 2 degrees
-        
+        # heat water to self.sptemp and maintain +/- 2 degrees        
         if self.heat:
             # if we are -2 degrees below desired temp
             #and self.atemp < self.mtemp - x degrees?
             if self.act_sp_temp < self.mtemp + self.diff - 2:
+                # set/start a spark timer?
                 # open solenoid
                 self.sol = True
                 # fire burner, this will need to be timed to stop after x seconds!!!
@@ -134,6 +136,7 @@ class Brew(wx.Frame):
         self.SetTitle('Brew Temps')
         self.Centre()
         self.Show()
+        
         
         def OnSave(self, e):
             self.temp = self.num.GetValue()
