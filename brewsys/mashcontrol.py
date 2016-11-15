@@ -30,7 +30,7 @@ class MashController(wx.Frame): # change to inerit from object for actual class!
         self.heat        = False     # a flag to control whether or not to fire a burner
         self.sol         = False     # state of the solenoiod(False is closed state)
         self.spark       = False     # state of sparker
-        self.is_lit      = False     # is the burner already lit?
+        self.fire        = False     # is the burner lit?
         
         # a binding to get the new value
         self.Bind(wx.EVT_BUTTON, self.TempCheck)
@@ -98,20 +98,33 @@ class MashController(wx.Frame): # change to inerit from object for actual class!
             # if we are -2 degrees below desired temp
             #and self.atemp < self.mtemp - x degrees?
             if self.act_sp_temp < self.mtemp + self.diff - 2:
-                # set/start a spark timer?
-                self.is_lit = False
+                # set/start a spark timer?               
                 self.FireBurner()
                 
             elif self.act_sp_temp > self.mtemp + self.diff + 2:
                 # make sure the soloenoid is closed and we aren't sparking
-                # turn the burner off
-                self.is_lit = True
-                self.FireBurner()
+                self.sol = False
                 
-            else:
-#                 self.maintain() # do we need an else condition?
-                
+        def FireBurner(self):
+            """
+            Start the burner or just allow it to continue to run.
+            """
+            self.sol = True
             
+            if not self.fire:
+                # self.SparkTimer()?
+                self.spark = True
+                
+        def SparkTimer(self, sec):
+            """
+            Can this be another instace of the Timer class?
+            - may need to get the threading module involved!!!
+            """
+            # time how long we try to SparkTimer
+            # set is_lit = True if runs out?
+            # this would allow a 'saftey' of sorts
+            pass
+        
 #-----------------------------------------------------------------------------------          
             
 class Brew(wx.Frame):
