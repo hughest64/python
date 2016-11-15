@@ -16,7 +16,7 @@ class MashController(wx.Frame): # change to inerit from object for actual class!
     """
     def __init__(self, *args, **kwargs):
         # a Brew class instance representing temp events from an Arduino
-        super(World, self).__init__(*args, **kwargs)
+        super(MashController, self).__init__(*args, **kwargs)
         
         self.brew        = Brew(self)
         self.atemp       = self.brew.temp # actual temp(from sensor)
@@ -99,19 +99,18 @@ class MashController(wx.Frame): # change to inerit from object for actual class!
             #and self.atemp < self.mtemp - x degrees?
             if self.act_sp_temp < self.mtemp + self.diff - 2:
                 # set/start a spark timer?
-                # open solenoid
-                self.sol = True
-                # fire burner, this will need to be timed to stop after x seconds!!!
-                self.spark = True
+                self.is_lit = False
+                self.FireBurner()
                 
             elif self.act_sp_temp > self.mtemp + self.diff + 2:
                 # make sure the soloenoid is closed and we aren't sparking
-                self.sol = False
-                self.spark = False
+                # turn the burner off
+                self.is_lit = True
+                self.FireBurner()
                 
-            #else:
-               # I don't thnk we want to do this
-               #self.heat = False
+            else:
+#                 self.maintain() # do we need an else condition?
+                
             
 #-----------------------------------------------------------------------------------          
             
@@ -121,7 +120,7 @@ class Brew(wx.Frame):
     the MashController class. (Pretend it's an Arduino.)
     """
     def __init__(self, *args, **kwargs):
-        super(World, self).__init__(*args, **kwargs)
+        super(Brew, self).__init__(*args, **kwargs)
         
         self.temp = 0
         
