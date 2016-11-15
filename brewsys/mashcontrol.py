@@ -29,7 +29,7 @@ class MashController(wx.Frame): # change to inerit from object for actual class!
         self.spark       = False     # state of sparker
         
         # a binding to get the new value
-        self.bind(EVT_BUTTON, self.TempCheck)
+        self.Bind(wx.EVT_BUTTON, self.TempCheck)
 
     def HeatStrike(self):
         # open solenoiod
