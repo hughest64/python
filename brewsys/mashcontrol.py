@@ -13,9 +13,11 @@ class MashController(wx.Frame): # change to inerit from object for actual class!
     """
     A class to control temperature inputs for a brewing system.
     """
-    def __init__(self): 
+    def __init__(self, *args, **kwargs):
         # a Brew class instance representing temp events from an Arduino
-        self.brew = Brew(self)
+        super(World, self).__init__(*args, **kwargs)
+        
+        self.brew        = Brew(self)
         self.atemp       = self.brew.temp # actual temp(from sensor)
 
         self.sttemp      = 0         # strike water temp        
