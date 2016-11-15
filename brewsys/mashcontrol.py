@@ -124,6 +124,10 @@ class MashController(wx.Frame): # change to inerit from object for actual class!
             # set is_lit = True if runs out?
             # this would allow a 'saftey' of sorts
             pass
+          
+        def Fire(self, e):
+            # set self.fire based upon an event
+            pass
         
 #-----------------------------------------------------------------------------------          
             
