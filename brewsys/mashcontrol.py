@@ -3,7 +3,7 @@ import time
 """
 things to think about:
 - do we want the burner cycle to run when the timer is paused?
-  - probaly
+  - probably
 - overide method to run everything manually?
 - separate cycle(method) for timing the sparker?
   - shut everything off if not lit in x seconds
