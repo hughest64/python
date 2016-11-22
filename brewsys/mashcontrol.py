@@ -105,29 +105,29 @@ class MashController(wx.Frame): # change to inerit from object for actual class!
                 # make sure the soloenoid is closed and we aren't sparking
                 self.sol = False
                 
-        def FireBurner(self):
-            """
-            Start the burner or just allow it to continue to run.
-            """
-            self.sol = True
-            
-            if not self.fire:
-                # self.SparkTimer()?
-                self.spark = True
-                
-        def SparkTimer(self, sec):
-            """
-            Can this be another instace of the Timer class?
-            - may need to get the threading module involved!!!
-            """
-            # time how long we try to SparkTimer
-            # set is_lit = True if runs out?
-            # this would allow a 'saftey' of sorts
-            pass
-          
-        def Fire(self, e):
-            # set self.fire based upon an event
-            pass
+    def FireBurner(self):
+        """
+        Start the burner or just allow it to continue to run.
+        """
+        self.sol = True
+
+        if not self.fire:
+            # self.SparkTimer()?
+            self.spark = True
+
+    def SparkTimer(self, sec):
+        """
+        Can this be another instace of the Timer class?
+        - may need to get the threading module involved!!!
+        """
+        # time how long we try to SparkTimer
+        # set is_lit = True if runs out?
+        # this would allow a 'saftey' of sorts
+        pass
+
+    def Fire(self, e):
+        # set self.fire based upon an event
+        pass
         
 #-----------------------------------------------------------------------------------          
             
